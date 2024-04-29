@@ -85,8 +85,14 @@ R1 = Terms.yand([Terms.implies(c1,
                                     frame_cond([L, RL, G, GA, GBG, GD])])),
                  Terms.implies(Terms.ynot(c1),
                                frame_cond([R, L, RL, G, GA, GBG, GD]))])
-R2 = Terms.implies(Terms.arith_geq(R, one), Terms.sub(nexts[R], one))
-R3 = Terms.implies(Terms.yand([Terms.arith_geq(L, one), Terms.arithm_geq(R, one)]),
+
+print("type of sub is ", Types.to_string(Terms.type_of_term(Terms.sub(nexts[R], one)), 10, 10, 10))
+print("type of arith_geq_atom is ", Types.to_string(Terms.type_of_term(Terms.arith_geq_atom(R, one)), 10, 10, 10))
+exit()
+
+# Add frame condition for R2. Simplify it for R3. 
+R2 = Terms.implies(Terms.arith_geq_atom(R, one), Terms.eq(nexts[R], Terms.sub(R, one)))
+R3 = Terms.implies(Terms.yand([Terms.arith_geq_atom(L, one), Terms.arith_geq_atom(R, one)]),
                    Terms.yand([Terms.eq(nexts[L], L),
                                Terms.eq(nexts[R], Terms.sub(R, one)),
                                Terms.eq(nexts[RL], Terms.add(RL, one)),
