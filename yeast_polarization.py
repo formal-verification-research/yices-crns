@@ -65,7 +65,7 @@ nexts[GBG] = GBGnext
 nexts[GD] = GDnext
 # g1 = Terms.new_uninterpreted_term(bool_t, 'g1')
 # g8 = Terms.new_uninterpreted_term(bool_t, 'g8')
-choice = [g1, g8]
+# choice = [g1, g8]
 def frame_cond(vars):
     res = Terms.true()
     for v in vars:
@@ -87,7 +87,6 @@ INIT = Terms.yand([Terms.eq(R, Terms.rational(50, 1)),
 #                  Terms.implies(Terms.ynot(g1),
 #                                frame_cond([R, L, RL, G, GA, GBG, GD]))])
 R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
-
 # print("type of sub is ", Types.to_string(Terms.type_of_term(Terms.sub(nexts[R], one)), 10, 10, 10))
 # print("type of arith_geq_atom is ", Types.to_string(Terms.type_of_term(Terms.arith_geq_atom(R, one)), 10, 10, 10))
 # R2 = Terms.implies(Terms.arith_geq_atom(R, one), Terms.eq(nexts[R], Terms.sub(R, one)))
@@ -103,7 +102,9 @@ R2 = Terms.ite(Terms.arith_geq_atom(R, one),
 #                                Terms.eq(nexts[GA], GA),
 #                                Terms.eq(nexts[GBG], GBG),
 #                                Terms.eq(nexts[GD], GD)]))
-
+R3 = Terms.implies(Terms.yand([Terms.arith_geq_atom(L, one), Terms.arith_geq_atom(R, one)]),
+                   Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)),
+                               frame_cond([L, RL, G, GA, GBG, GD])]))
 
 
 exit()
@@ -113,7 +114,8 @@ print("INIT := " + Terms.to_string(INIT))
 print("TRANS := " + Terms.to_string(TRANS))
 print("GOAL := " + Terms.to_string(GOAL))
 #unroller
-unroller = Unroller(state_vars, nexts, choice)
+# unroller = Unroller(state_vars, nexts, choice)
+unroller = Unroller(state_vars, nexts)
 formula = Terms.yand([unroller.at_time(INIT, 0),
                       unroller.at_time(TRANS, 0),
                       unroller.at_time(GOAL, 1)])
