@@ -6,10 +6,11 @@ zero = Terms.rational(0, 1)
 one = Terms.rational(1, 1)
 
 class Unroller(object):
-    def __init__(self, state_vars, nexts, inputs):
+    # def __init__(self, state_vars, nexts, inputs):
+    def __init__(self, state_vars, nexts):    
         self.state_vars = state_vars
         self.nexts = nexts
-        self.inputs = inputs
+        # self.inputs = inputs
         self.var_cache = dict()
         self.time_cache = []
     def at_time(self, term, k):
@@ -32,10 +33,10 @@ class Unroller(object):
                 n_t = self.get_var(s, t+1)
                 cache[s] = s_t
                 cache[self.nexts[s]] = n_t
-            for i in self.inputs:
-                i_t = Terms.new_uninterpreted_term(Terms.type_of_term(i),
-                                                Terms.to_string(i) + "@" + str(t))
-                cache[i] = i_t
+            # for i in self.inputs:
+            #     i_t = Terms.new_uninterpreted_term(Terms.type_of_term(i),
+            #                                     Terms.to_string(i) + "@" + str(t))
+            #     cache[i] = i_t
             self.time_cache.append(cache)
         return self.time_cache[k]
 
@@ -86,29 +87,42 @@ INIT = Terms.yand([Terms.eq(R, Terms.rational(50, 1)),
 #                                     frame_cond([L, RL, G, GA, GBG, GD])])),
 #                  Terms.implies(Terms.ynot(g1),
 #                                frame_cond([R, L, RL, G, GA, GBG, GD]))])
-R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
 # print("type of sub is ", Types.to_string(Terms.type_of_term(Terms.sub(nexts[R], one)), 10, 10, 10))
 # print("type of arith_geq_atom is ", Types.to_string(Terms.type_of_term(Terms.arith_geq_atom(R, one)), 10, 10, 10))
 # R2 = Terms.implies(Terms.arith_geq_atom(R, one), Terms.eq(nexts[R], Terms.sub(R, one)))
-R2 = Terms.ite(Terms.arith_geq_atom(R, one),
-                       Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)),
-                                       frame_cond([L, RL, G, GA, GBG, GD])]),
-                   frame_cond([R, L, RL, G, GA, GBG, GD]))
-# R3 = Terms.implies(Terms.yand([Terms.arith_geq_atom(L, one), Terms.arith_geq_atom(R, one)]),
-#                    Terms.yand([Terms.eq(nexts[L], L),
-#                                Terms.eq(nexts[R], Terms.sub(R, one)),
-#                                Terms.eq(nexts[RL], Terms.add(RL, one)),
-#                                Terms.eq(nexts[G], G),
-#                                Terms.eq(nexts[GA], GA),
-#                                Terms.eq(nexts[GBG], GBG),
-#                                Terms.eq(nexts[GD], GD)]))
-R3 = Terms.implies(Terms.yand([Terms.arith_geq_atom(L, one), Terms.arith_geq_atom(R, one)]),
-                   Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)),
+# R2 = Terms.ite(Terms.arith_geq_atom(R, one),
+#                        Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)),
+#                                        frame_cond([L, RL, G, GA, GBG, GD])]),
+#                    frame_cond([R, L, RL, G, GA, GBG, GD]))
+# R1 = Terms.implies(Terms.true(),
+#                     Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])]))
+R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
+R2 = Terms.implies(Terms.arith_geq_atom(R, one),
+                   Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)), 
                                frame_cond([L, RL, G, GA, GBG, GD])]))
-
-
-exit()
-TRANS = Terms.yand([R1, R2, R3, R4, R5, R6, R7, R8])
+R3 = Terms.implies(Terms.yand([Terms.arith_geq_atom(L, one), Terms.arith_geq_atom(R, one)]),
+                   Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)), 
+                               Terms.eq(nexts[RL], Terms.add(RL, one)),     
+                               frame_cond([L, G, GA, GBG, GD])]))
+R4 = Terms.implies(Terms.arith_geq_atom(RL, one),
+                   Terms.yand([Terms.eq(nexts[RL], Terms.sub(RL, one)), Terms.eq(nexts[R], Terms.add(R, one)),
+                               frame_cond([L, G, GA, GBG, GD])]))
+R5 = Terms.implies(Terms.yand([Terms.arith_geq_atom(RL, one), Terms.arith_geq_atom(G, one)]),
+                   Terms.yand([Terms.eq(nexts[RL], Terms.sub(RL, one)), Terms.eq(nexts[G], Terms.sub(G, one)),
+                               Terms.eq(nexts[GA], Terms.add(GA, one)), Terms.eq(nexts[GBG], Terms.add(GBG, one)),
+                               frame_cond([R, L, GD])]))
+R6 = Terms.implies(Terms.arith_geq_atom(GA, one),
+                   Terms.yand([Terms.eq(nexts[GA], Terms.sub(GA, one)),
+                               Terms.eq(nexts[GD], Terms.add(GD, one)),
+                               frame_cond([R, L, RL, G, GBG])]))
+R7 = Terms.implies(Terms.yand([Terms.arith_geq_atom(GD, one), Terms.arith_geq_atom(GBG, one)]),
+                   Terms.yand([Terms.eq(nexts[GD], Terms.sub(GD, one)), Terms.eq(nexts[GBG], Terms.sub(GBG, one)),
+                               Terms.eq(nexts[G], Terms.add(G, one)), 
+                               frame_cond([R, L, RL, GA])]))
+# R8 = Terms.implies(Terms.true(),
+#                    Terms.yand([Terms.eq(nexts[RL], Terms.add(RL, one)), frame_cond([L, R, G, GA, GBG, GD])]))
+R8 = Terms.yand([Terms.eq(nexts[RL], Terms.add(RL, one)), frame_cond([L, R, G, GA, GBG, GD])])
+TRANS = Terms.yand([R1, R2, R3, R4, R5, R6, R7])
 GOAL = Terms.arith_geq_atom(GBG, Terms.rational(50, 1))
 print("INIT := " + Terms.to_string(INIT))
 print("TRANS := " + Terms.to_string(TRANS))
