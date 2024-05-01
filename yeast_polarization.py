@@ -94,9 +94,13 @@ INIT = Terms.yand([Terms.eq(R, Terms.rational(50, 1)),
 #                        Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)),
 #                                        frame_cond([L, RL, G, GA, GBG, GD])]),
 #                    frame_cond([R, L, RL, G, GA, GBG, GD]))
+# R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
 # R1 = Terms.implies(Terms.true(),
 #                     Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])]))
-R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
+# R1 = Terms.yand([Terms.implies(Terms.true(),
+#                     Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])),
+#                  Terms.implies(Terms.false(),
+#                     frame_cond([R, L, RL, G, GA, GBG, GD]))])    
 R2 = Terms.implies(Terms.arith_geq_atom(R, one),
                    Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)), 
                                frame_cond([L, RL, G, GA, GBG, GD])]))
