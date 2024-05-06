@@ -94,7 +94,7 @@ INIT = Terms.yand([Terms.eq(R, Terms.rational(50, 1)),
 #                        Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)),
 #                                        frame_cond([L, RL, G, GA, GBG, GD])]),
 #                    frame_cond([R, L, RL, G, GA, GBG, GD]))
-# R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
+R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
 # R1 = Terms.implies(Terms.true(),
 #                     Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])]))
 # R1 = Terms.yand([Terms.implies(Terms.true(),
@@ -125,8 +125,19 @@ R7 = Terms.implies(Terms.yand([Terms.arith_geq_atom(GD, one), Terms.arith_geq_at
                                frame_cond([R, L, RL, GA])]))
 # R8 = Terms.implies(Terms.true(),
 #                    Terms.yand([Terms.eq(nexts[RL], Terms.add(RL, one)), frame_cond([L, R, G, GA, GBG, GD])]))
-R8 = Terms.yand([Terms.eq(nexts[RL], Terms.add(RL, one)), frame_cond([L, R, G, GA, GBG, GD])])
-TRANS = Terms.yand([R1, R2, R3, R4, R5, R6, R7])
+R8 = Terms.yand([Terms.eq(nexts[RL], Terms.add(RL, one)), frame_cond([R, L, G, GA, GBG, GD])])
+TRANS = Terms.yand([Terms.yor([R1, R2]),
+                    Terms.yor([R2, R4]),
+                    Terms.yor([R3, R1]),
+                    Terms.yor([R3, R4]),
+                    Terms.yor([R4, R8]),
+                    Terms.yor([R5, R8]),
+                    Terms.yor([R5, R3]),
+                    Terms.yor([R5, R7]),
+                    Terms.yor([R5, R6]),
+                    Terms.yor([R6, R7])])
+# Pairs of reactions that cannot happen simultaneously: (R1, R2), (R2, R4), (R3, R1), (R3, R4), (R4, R8), (R5, R8), (R5, R3), (R5, R7), (R5, R6), (R6, R7)
+
 GOAL = Terms.arith_geq_atom(GBG, Terms.rational(50, 1))
 print("INIT := " + Terms.to_string(INIT))
 print("TRANS := " + Terms.to_string(TRANS))
@@ -139,10 +150,21 @@ formula = Terms.yand([unroller.at_time(INIT, 0),
                       unroller.at_time(GOAL, 1)])
 print(Terms.to_string(formula))
 # initialize yices context
+# cfg = Config()
+# cfg.default_config_for_logic(‘QF_LIA’)
 yices_ctx = Context(Config().default_config_for_logic('QF_LIA'))
 formula = unroller.at_time(INIT, 0)
 # assert formula in the yices context
 yices_ctx.assert_formula(formula)
+status = yices_ctx.check_context()
+if status == Status.ERROR:
+    print("unknown")
+if status == Status.UNKNOWN:
+    print("unknown")
+if status == Status.UNSAT:
+    print("unsat")
+if status == Status.SAT:
+    print("sat")
 k = 0
 while True:
     print("-- TIME %d --", k)
@@ -161,5 +183,14 @@ while True:
     else:
         yices_ctx.pop()
         yices_ctx.assert_formula(unroller.at_time(TRANS, k))
+        status = yices_ctx.status()
+        if status == Status.ERROR:
+            print("unknown")
+        if status == Status.UNKNOWN:
+            print("unknown")
+        if status == Status.UNSAT:
+            print("unsat")
+        if status == Status.SAT:
+            print("sat")
         formula = Terms.yand([formula, unroller.at_time(TRANS, k)])
         k = k + 1
