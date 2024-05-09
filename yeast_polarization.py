@@ -154,7 +154,8 @@ R8 = Terms.yand([eq_term(nexts[RL], add_term(RL, one)), frame_cond([R, L, G, GA,
 #                     # Terms.yor([R6, R7])
 # ])
 
-TRANS = Terms.yand(Terms.yor([R1, R2, R3, R4, R5, R6, R7, R8]))
+
+TRANS = Terms.yor([R1, R2, R3, R4, R5, R6, R7, R8])
 
 # Pairs of reactions that cannot happen simultaneously: (R1, R2), (R2, R4), (R3, R1), (R3, R4), (R4, R8), (R5, R8), (R5, R3), (R5, R7), (R5, R6), (R6, R7)
 
