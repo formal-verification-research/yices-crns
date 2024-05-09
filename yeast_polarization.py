@@ -141,32 +141,32 @@ R7 = Terms.yand([Terms.yand([geq_term(GD, one), geq_term(GBG, one)]),
                                frame_cond([R, L, RL, GA])])])
 R8 = Terms.yand([eq_term(nexts[RL], add_term(RL, one)), frame_cond([R, L, G, GA, GBG, GD])])
 
-TRANS = Terms.yand([
-                    # Terms.yor([R1, R2]),
-                    # Terms.yor([R2, R4]),
-                    # Terms.yor([R3, R1]),
-                    # Terms.yor([R3, R4]),
-                    # Terms.yor([R4, R8])#,
-                    Terms.yor([R5, R8]),
-                    # Terms.yor([R5, R3]),
-                    # Terms.yor([R5, R7]),
-                    # Terms.yor([R5, R6]),
-                    # Terms.yor([R6, R7])
-])
-
-### Problematic Trans below ###
 # TRANS = Terms.yand([
-#                     Terms.yor([R1, R2]),
-#                     Terms.yor([R2, R4]),
-#                     Terms.yor([R3, R1]),
-#                     Terms.yor([R3, R4]),
-#                     Terms.yor([R4, R8])#,
-#                     # Terms.yor([R5, R8]),
+#                     # Terms.yor([R1, R2]),
+#                     # Terms.yor([R2, R4]),
+#                     # Terms.yor([R3, R1]),
+#                     # Terms.yor([R3, R4]),
+#                     # Terms.yor([R4, R8])#,
+#                     Terms.yor([R5, R8]),
 #                     # Terms.yor([R5, R3]),
 #                     # Terms.yor([R5, R7]),
 #                     # Terms.yor([R5, R6]),
-#                   # Terms.yor([R6, R7])
+#                     # Terms.yor([R6, R7])
 # ])
+
+### Problematic Trans below ###
+TRANS = Terms.yand([
+                    Terms.yor([R1, R2]),
+                    Terms.yor([R2, R4]),
+                    Terms.yor([R3, R1]),
+                    Terms.yor([R3, R4]),
+                    Terms.yor([R4, R8]),
+                    Terms.yor([R5, R8])#,
+                    # Terms.yor([R5, R3]),
+                    # Terms.yor([R5, R7]),
+                    # Terms.yor([R5, R6]),
+                  # Terms.yor([R6, R7])
+])
 # Pairs of reactions that cannot happen simultaneously: (R1, R2), (R2, R4), (R3, R1), (R3, R4), (R4, R8), (R5, R8), (R5, R3), (R5, R7), (R5, R6), (R6, R7)
 GOAL = geq_term(GBG, val_term(50))
 # GOAL = geq_term(GBG, Terms.rational(5, 1))
