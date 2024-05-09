@@ -201,7 +201,7 @@ if status == Status.SAT:
     print("sat")
 k = 0
 while True:
-    print("-- TIME %d --", k)
+    print("-- TIME %3d --" % (k))
     # for assuming a goal at time k
     assump = Terms.new_uninterpreted_term(bool_t)
     #yices_ctx.push()
