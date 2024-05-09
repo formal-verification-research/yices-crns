@@ -2,8 +2,10 @@ from yices import *
 real_t = Types.real_type()
 int_t = Types.int_type()
 bool_t = Types.bool_type()
-zero = Terms.rational(0, 1)
-one = Terms.rational(1, 1)
+
+# number of bits to represent values
+BITS = 8 # 2^8 --> we have a range from 0 to 255
+bv_t = Types.bv_type(BITS)
 
 class Unroller(object):
     # def __init__(self, state_vars, nexts, inputs):
@@ -40,22 +42,47 @@ class Unroller(object):
             self.time_cache.append(cache)
         return self.time_cache[k]
 
+def val_term(v):
+    #return Terms.integer(v)
+    return Terms.bvconst_integer(BITS, v)
+
+zero = val_term(0)
+one = val_term(1)
+
+def add_term(a, b):
+    #return Terms.add(a, b)
+    return Terms.bvadd(a, b)
+
+def sub_term(a, b):
+    #return Terms.sub(a, b)
+    return Terms.bvsub(a, b)
+
+def eq_term(a, b):
+    #return Terms.eq(a, b)
+    return Terms.bveq_atom(a, b)
+
+def geq_term(a, b):
+    #return Terms.arith_geq_atom(a, b)
+    return Terms.bvge_atom(a, b)
+
+# type
+ty = bv_t
 # state variables
-R = Terms.new_uninterpreted_term(int_t, 'R')
-L = Terms.new_uninterpreted_term(int_t, 'L')
-RL = Terms.new_uninterpreted_term(int_t, 'RL')
-G = Terms.new_uninterpreted_term(int_t, 'G')
-GA = Terms.new_uninterpreted_term(int_t, 'GA')
-GBG = Terms.new_uninterpreted_term(int_t, 'GBG')
-GD = Terms.new_uninterpreted_term(int_t, 'GD')
+R = Terms.new_uninterpreted_term(ty, 'R')
+L = Terms.new_uninterpreted_term(ty, 'L')
+RL = Terms.new_uninterpreted_term(ty, 'RL')
+G = Terms.new_uninterpreted_term(ty, 'G')
+GA = Terms.new_uninterpreted_term(ty, 'GA')
+GBG = Terms.new_uninterpreted_term(ty, 'GBG')
+GD = Terms.new_uninterpreted_term(ty, 'GD')
 state_vars = [R, L, RL, G, GA, GBG, GD]
-Rnext = Terms.new_uninterpreted_term(int_t, 'Rnext')
-Lnext = Terms.new_uninterpreted_term(int_t, 'Lnext')
-RLnext = Terms.new_uninterpreted_term(int_t, 'RLnext')
-Gnext = Terms.new_uninterpreted_term(int_t, 'Gnext')
-GAnext = Terms.new_uninterpreted_term(int_t, 'GAnext')
-GBGnext = Terms.new_uninterpreted_term(int_t, 'GBGnext')
-GDnext = Terms.new_uninterpreted_term(int_t, 'GDnext')
+Rnext = Terms.new_uninterpreted_term(ty, 'Rnext')
+Lnext = Terms.new_uninterpreted_term(ty, 'Lnext')
+RLnext = Terms.new_uninterpreted_term(ty, 'RLnext')
+Gnext = Terms.new_uninterpreted_term(ty, 'Gnext')
+GAnext = Terms.new_uninterpreted_term(ty, 'GAnext')
+GBGnext = Terms.new_uninterpreted_term(ty, 'GBGnext')
+GDnext = Terms.new_uninterpreted_term(ty, 'GDnext')
 nexts = dict()
 nexts[R] = Rnext
 nexts[L] = Lnext
@@ -70,49 +97,49 @@ nexts[GD] = GDnext
 def frame_cond(vars):
     res = Terms.true()
     for v in vars:
-        res = Terms.yand([res, Terms.eq(nexts[v], v)])
+        res = Terms.yand([res, eq_term(nexts[v], v)])
     return res
 # initial condition
-INIT = Terms.yand([Terms.eq(R, Terms.rational(50, 1)),
-                   Terms.eq(L, Terms.rational(2, 1)),
-                   Terms.eq(RL, Terms.rational(0, 1)),
-                   Terms.eq(G, Terms.rational(50, 1)),
-                   Terms.eq(GA, Terms.rational(0, 1)),
-                   Terms.eq(GBG, Terms.rational(0, 1)),
-                   Terms.eq(GD, Terms.rational(0, 1))
+INIT = Terms.yand([eq_term(R, val_term(50)),
+                   eq_term(L, val_term(2)),
+                   eq_term(RL, val_term(0)),
+                   eq_term(G, val_term(50)),
+                   eq_term(GA, val_term(0)),
+                   eq_term(GBG, val_term(0)),
+                   eq_term(GD, val_term(0))
                    ])
-# INIT = Terms.yand([Terms.eq(R, Terms.rational(5, 1)),
-#                    Terms.eq(L, Terms.rational(2, 1)),
-#                    Terms.eq(RL, Terms.rational(0, 1)),
-#                    Terms.eq(G, Terms.rational(5, 1)),
-#                    Terms.eq(GA, Terms.rational(0, 1)),
-#                    Terms.eq(GBG, Terms.rational(0, 1)),
-#                    Terms.eq(GD, Terms.rational(0, 1))
+# INIT = Terms.yand([eq_term(R, Terms.rational(5, 1)),
+#                    eq_term(L, Terms.rational(2, 1)),
+#                    eq_term(RL, Terms.rational(0, 1)),
+#                    eq_term(G, Terms.rational(5, 1)),
+#                    eq_term(GA, Terms.rational(0, 1)),
+#                    eq_term(GBG, Terms.rational(0, 1)),
+#                    eq_term(GD, Terms.rational(0, 1))
 #                    ])
-R1 = Terms.yand([Terms.eq(nexts[R], Terms.add(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
-R2 = Terms.yand([Terms.arith_geq_atom(R, one),
-                   Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)), 
+R1 = Terms.yand([eq_term(nexts[R], add_term(R, one)), frame_cond([L, RL, G, GA, GBG, GD])])
+R2 = Terms.yand([geq_term(R, one),
+                   Terms.yand([eq_term(nexts[R], sub_term(R, one)), 
                                frame_cond([L, RL, G, GA, GBG, GD])])])
-R3 = Terms.yand([Terms.yand([Terms.arith_geq_atom(L, one), Terms.arith_geq_atom(R, one)]),
-                   Terms.yand([Terms.eq(nexts[R], Terms.sub(R, one)), 
-                               Terms.eq(nexts[RL], Terms.add(RL, one)),     
+R3 = Terms.yand([Terms.yand([geq_term(L, one), geq_term(R, one)]),
+                   Terms.yand([eq_term(nexts[R], sub_term(R, one)), 
+                               eq_term(nexts[RL], add_term(RL, one)),     
                                frame_cond([L, G, GA, GBG, GD])])])
-R4 = Terms.yand([Terms.arith_geq_atom(RL, one),
-                   Terms.yand([Terms.eq(nexts[RL], Terms.sub(RL, one)), Terms.eq(nexts[R], Terms.add(R, one)),
+R4 = Terms.yand([geq_term(RL, one),
+                   Terms.yand([eq_term(nexts[RL], sub_term(RL, one)), eq_term(nexts[R], add_term(R, one)),
                                frame_cond([L, G, GA, GBG, GD])])])
-R5 = Terms.yand([Terms.yand([Terms.arith_geq_atom(RL, one), Terms.arith_geq_atom(G, one)]),
-                   Terms.yand([Terms.eq(nexts[RL], Terms.sub(RL, one)), Terms.eq(nexts[G], Terms.sub(G, one)),
-                               Terms.eq(nexts[GA], Terms.add(GA, one)), Terms.eq(nexts[GBG], Terms.add(GBG, one)),
+R5 = Terms.yand([Terms.yand([geq_term(RL, one), geq_term(G, one)]),
+                   Terms.yand([eq_term(nexts[RL], sub_term(RL, one)), eq_term(nexts[G], sub_term(G, one)),
+                               eq_term(nexts[GA], add_term(GA, one)), eq_term(nexts[GBG], add_term(GBG, one)),
                                frame_cond([R, L, GD])])])
-R6 = Terms.yand([Terms.arith_geq_atom(GA, one),
-                   Terms.yand([Terms.eq(nexts[GA], Terms.sub(GA, one)),
-                               Terms.eq(nexts[GD], Terms.add(GD, one)),
+R6 = Terms.yand([geq_term(GA, one),
+                   Terms.yand([eq_term(nexts[GA], sub_term(GA, one)),
+                               eq_term(nexts[GD], add_term(GD, one)),
                                frame_cond([R, L, RL, G, GBG])])])
-R7 = Terms.yand([Terms.yand([Terms.arith_geq_atom(GD, one), Terms.arith_geq_atom(GBG, one)]),
-                   Terms.yand([Terms.eq(nexts[GD], Terms.sub(GD, one)), Terms.eq(nexts[GBG], Terms.sub(GBG, one)),
-                               Terms.eq(nexts[G], Terms.add(G, one)), 
+R7 = Terms.yand([Terms.yand([geq_term(GD, one), geq_term(GBG, one)]),
+                   Terms.yand([eq_term(nexts[GD], sub_term(GD, one)), eq_term(nexts[GBG], sub_term(GBG, one)),
+                               eq_term(nexts[G], add_term(G, one)), 
                                frame_cond([R, L, RL, GA])])])
-R8 = Terms.yand([Terms.eq(nexts[RL], Terms.add(RL, one)), frame_cond([R, L, G, GA, GBG, GD])])
+R8 = Terms.yand([eq_term(nexts[RL], add_term(RL, one)), frame_cond([R, L, G, GA, GBG, GD])])
 
 TRANS = Terms.yand([
                     # Terms.yor([R1, R2]),
@@ -141,8 +168,8 @@ TRANS = Terms.yand([
 #                   # Terms.yor([R6, R7])
 # ])
 # Pairs of reactions that cannot happen simultaneously: (R1, R2), (R2, R4), (R3, R1), (R3, R4), (R4, R8), (R5, R8), (R5, R3), (R5, R7), (R5, R6), (R6, R7)
-GOAL = Terms.arith_geq_atom(GBG, Terms.rational(50, 1))
-# GOAL = Terms.arith_geq_atom(GBG, Terms.rational(5, 1))
+GOAL = geq_term(GBG, val_term(50))
+# GOAL = geq_term(GBG, Terms.rational(5, 1))
 print("INIT := " + Terms.to_string(INIT))
 print("TRANS := " + Terms.to_string(TRANS))
 print("GOAL := " + Terms.to_string(GOAL))
@@ -153,10 +180,13 @@ formula = Terms.yand([unroller.at_time(INIT, 0),
                       unroller.at_time(TRANS, 0),
                       unroller.at_time(GOAL, 1)])
 print(Terms.to_string(formula))
+
 # initialize yices context
-# cfg = Config()
-# cfg.default_config_for_logic(‘QF_LIA’)
-yices_ctx = Context(Config().default_config_for_logic('QF_LIA'))
+cfg = Config()
+#cfg.default_config_for_logic('QF_LIA')
+#cfg.set_config("mode", "multi-checks")
+yices_ctx = Context(cfg)
+
 formula = unroller.at_time(INIT, 0)
 # assert formula in the yices context
 yices_ctx.assert_formula(formula)
@@ -172,10 +202,14 @@ if status == Status.SAT:
 k = 0
 while True:
     print("-- TIME %d --", k)
-    yices_ctx.push()
-    yices_ctx.assert_formula(unroller.at_time(GOAL, k))
+    # for assuming a goal at time k
+    assump = Terms.new_uninterpreted_term(bool_t)
+    #yices_ctx.push()
+    yices_ctx.assert_formula(Terms.implies(assump,
+                                           unroller.at_time(GOAL, k)))
     # check
-    status = yices_ctx.check_context()
+    status = yices_ctx.check_context_with_assumptions(None, [assump])
+    #status = yices_ctx.check_context()
     if status == Status.SAT:
         # remember the whole formula
         formula = Terms.yand([formula, unroller.at_time(GOAL, k)])
@@ -185,7 +219,9 @@ while True:
         print(Terms.to_string(formula))
         break
     else:
-        yices_ctx.pop()
+        #yices_ctx.pop()
+        # forgetting goal at time k
+        yices_ctx.assert_formula(Terms.ynot(assump))
         yices_ctx.assert_formula(unroller.at_time(TRANS, k))
         status = yices_ctx.status()
         if status == Status.ERROR:
