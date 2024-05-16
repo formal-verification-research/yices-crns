@@ -155,7 +155,9 @@ R8 = Terms.yand([eq_term(nexts[RL], add_term(RL, one)), frame_cond([R, L, G, GA,
 # ])
 
 
-TRANS = Terms.yor([R1, R2, R3, R4, R5, R6, R7, R8])
+# TRANS = Terms.yor([R1, R2, R3, R4, R5, R6, R7, R8])
+### Reduced reactions based on dependency graph###
+TRANS = Terms.yor([R3, R5, R8])
 
 # Pairs of reactions that cannot happen simultaneously: (R1, R2), (R2, R4), (R3, R1), (R3, R4), (R4, R8), (R5, R8), (R5, R3), (R5, R7), (R5, R6), (R6, R7)
 
@@ -200,6 +202,7 @@ while True:
                                            unroller.at_time(GOAL, k)))
     # check
     status = yices_ctx.check_context_with_assumptions(None, [assump])
+    #yices_ctx.assert_formula(assump)
     #status = yices_ctx.check_context()
     if status == Status.SAT:
         # remember the whole formula
