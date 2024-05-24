@@ -247,7 +247,7 @@ while True:
         print("sofar RL Upper Bound: " + str(ub))
         ub = ub + 1
     elif status == Status.UNSAT:
-        print("Final RL Upper Bound: " + str(ub))
+        print("Final RL Upper Bound: " + str(ub - 1))
         break
     else:
         print("THIS SHOULDN'T HAVE HAPPEN")
