@@ -163,16 +163,13 @@ TRANS = Terms.yor([R3, R5, R8])
 
 GOAL = geq_term(GBG, val_term(50))
 # GOAL = geq_term(GBG, Terms.rational(5, 1))
-print("INIT := " + Terms.to_string(INIT))
-print("TRANS := " + Terms.to_string(TRANS))
-print("GOAL := " + Terms.to_string(GOAL))
+#print("INIT := " + Terms.to_string(INIT))
+#print("TRANS := " + Terms.to_string(TRANS))
+#print("GOAL := " + Terms.to_string(GOAL))
 #unroller
 # unroller = Unroller(state_vars, nexts, choice)
 unroller = Unroller(state_vars, nexts)
-formula = Terms.yand([unroller.at_time(INIT, 0),
-                      unroller.at_time(TRANS, 0),
-                      unroller.at_time(GOAL, 1)])
-print(Terms.to_string(formula))
+#print(Terms.to_string(formula))
 
 # initialize yices context
 cfg = Config()
@@ -184,14 +181,14 @@ formula = unroller.at_time(INIT, 0)
 # assert formula in the yices context
 yices_ctx.assert_formula(formula)
 status = yices_ctx.check_context()
-if status == Status.ERROR:
-    print("unknown")
-if status == Status.UNKNOWN:
-    print("unknown")
-if status == Status.UNSAT:
-    print("unsat")
-if status == Status.SAT:
-    print("sat")
+# if status == Status.ERROR:
+#     print("unknown")
+# if status == Status.UNKNOWN:
+#     print("unknown")
+# if status == Status.UNSAT:
+#     print("unsat")
+# if status == Status.SAT:
+#     print("sat")
 k = 0
 while True:
     print("-- TIME %3d --" % (k))
@@ -209,22 +206,51 @@ while True:
         formula = Terms.yand([formula, unroller.at_time(GOAL, k)])
         model = Model.from_context(yices_ctx, True)
         model_string = model.to_string(80, k * 4, 0)
-        print(model_string)
-        print(Terms.to_string(formula))
+        #print(model_string)
+        #print(Terms.to_string(formula))
         break
     else:
         #yices_ctx.pop()
         # forgetting goal at time k
         yices_ctx.assert_formula(Terms.ynot(assump))
         yices_ctx.assert_formula(unroller.at_time(TRANS, k))
-        status = yices_ctx.status()
-        if status == Status.ERROR:
-            print("unknown")
-        if status == Status.UNKNOWN:
-            print("unknown")
-        if status == Status.UNSAT:
-            print("unsat")
-        if status == Status.SAT:
-            print("sat")
         formula = Terms.yand([formula, unroller.at_time(TRANS, k)])
         k = k + 1
+
+
+# optimize to get the least upper bound of RL, necessary for the trace
+
+# A simple incremental approach
+
+def timed_ub_state(k, ub, state):
+    # k is positive
+    ub_term = val_term(ub)
+    res = []
+    for i in range(k+1):
+        r = geq_term(unroller.at_time(state, i), ub_term)
+        res.append(r)
+        #print(Terms.to_string(r))
+    return Terms.yor(res)
+
+ub = 0
+
+yices_ctx.push()
+
+max_bound = 2**BITS - 1
+while True:
+    if ub == max_bound:
+        print("Already done " + str(ub + 1))
+        break
+    yices_ctx.assert_formula(timed_ub_state(k, ub, RL))
+    status = yices_ctx.check_context_with_assumptions(None, [assump])
+    if status == Status.SAT:
+        print("sofar RL Upper Bound: " + str(ub))
+        ub = ub + 1
+    elif status == Status.UNSAT:
+        print("Final RL Upper Bound: " + str(ub))
+        break
+    else:
+        print("THIS SHOULDN'T HAVE HAPPEN")
+        break
+
+yices_ctx.pop()
