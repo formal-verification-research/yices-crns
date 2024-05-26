@@ -1,11 +1,11 @@
-species R init 50
+species R init 20
 species L init 2
 species RL init 0
-species G init 50
+species G init 20
 species GA init 0
 species GBG init 0
 species GD init 0
-target GBG = 50
+target GBG = 20
 reaction R3
     consume R 1
     consume L 1
