@@ -22,7 +22,7 @@ class Reaction:
 
 def parse_model(filename):
     init = dict()
-    target = []
+    target = tuple()
     last_reaction = ""
     reaction = dict()
     with open(filename, "r") as model:
@@ -52,8 +52,7 @@ def parse_model(filename):
                     print("I read", " ".join(ls))
                     print("\nERROR: INVALID INPUT FORMAT")
                     exit(1)
-                parsed_target = " ".join([ls[1],ls[2],ls[3]])
-                target.append(parsed_target)
+                target = (ls[1], ls[3])
             # reaction tells us what reaction we're looking at and
             # starts building a tuple
             elif "reaction" in line:

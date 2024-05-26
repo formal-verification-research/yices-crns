@@ -163,9 +163,9 @@ TRANS = Terms.yor([R3, R5, R8])
 
 GOAL = geq_term(GBG, val_term(50))
 # GOAL = geq_term(GBG, Terms.rational(5, 1))
-#print("INIT := " + Terms.to_string(INIT))
-#print("TRANS := " + Terms.to_string(TRANS))
-#print("GOAL := " + Terms.to_string(GOAL))
+print("INIT := " + Terms.to_string(INIT))
+print("TRANS := " + Terms.to_string(TRANS))
+print("GOAL := " + Terms.to_string(GOAL))
 #unroller
 # unroller = Unroller(state_vars, nexts, choice)
 unroller = Unroller(state_vars, nexts)
