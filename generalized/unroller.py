@@ -37,3 +37,5 @@ class Unroller(object):
             self.time_cache.append(cache)
         return self.time_cache[k]
 
+if __name__ == "__main__":
+    print("Nothing to test on unroller")

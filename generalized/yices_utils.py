@@ -15,3 +15,7 @@ def eq_term(a, b):
 def geq_term(a, b):
     #return Terms.arith_geq_atom(a, b)
     return Terms.bvge_atom(a, b)
+
+def leq_term(a, b):
+    #return Terms.arith_geq_atom(a, b)
+    return Terms.bvle_atom(a, b)

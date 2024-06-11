@@ -1,0 +1,111 @@
+================================================================================
+CRN Variable Bound Calculator
+================================================================================
+--------------------------------------------------------------------------------
+Parsing the model from abr.crn
+--------------------------------------------------------------------------------
+Parsed model. Results as follows.
+{'R': 20, 'L': 2, 'RL': 0, 'G': 20, 'GA': 0, 'GBG': 0, 'GD': 0}
+('GBG', '20')
+Reaction R3
+GEN ('R', '1')
+GEN ('L', '1')
+CON ('RL', '1')
+CON ('L', '1')
+0.042
+
+Reaction R5
+GEN ('RL', '1')
+GEN ('G', '1')
+CON ('GA', '1')
+CON ('GBG', '1')
+0.011
+
+Reaction R8
+CON ('RL', '1')
+3.21
+
+--------------------------------------------------------------------------------
+Building the yices model
+--------------------------------------------------------------------------------
+reaction R3
+sub R 1
+is_catalyst L L
+net zero 1 1
+add RL 1
+reaction R5
+sub RL 1
+sub G 1
+add GA 1
+add GBG 1
+reaction R8
+add RL 1
+-- TIME   0 --
+-- TIME   1 --
+-- TIME   2 --
+-- TIME   3 --
+-- TIME   4 --
+-- TIME   5 --
+-- TIME   6 --
+-- TIME   7 --
+-- TIME   8 --
+
+--------------------------------------------------------------------------------
+Bounding the species counts
+--------------------------------------------------------------------------------
+..............................
+Final R loose upper bound is 4
+Final L loose upper bound is 2
+Final RL loose upper bound is 4
+Final G loose upper bound is 4
+Final GA loose upper bound is 4
+Final GBG loose upper bound is 4
+Final GD loose upper bound is 0
+..............................
+Final R tight upper bound is:  4
+Final L tight upper bound is:  2
+Final RL tight upper bound is:  1
+Final G tight upper bound is:  4
+Final GA tight upper bound is:  4
+Final GBG tight upper bound is:  4
+Final GD tight upper bound is:  1
+..............................
+Final R tight lower bound is:  1
+Final L tight lower bound is:  1
+Final RL tight lower bound is: 0
+Final G tight lower bound is:  1
+Final GA tight lower bound is: 0
+Final GBG tight lower bound is: 0
+Final GD tight lower bound is: 0
+..............................
+Final R loose lower bound is:  6
+Final L loose lower bound is:  2
+Final RL loose lower bound is:  0
+Final G loose lower bound is:  2
+Final GA loose lower bound is:  0
+Final GBG loose lower bound is:  0
+Final GD loose lower bound is:  0
+--------------------------------------------------------------------------------
+Final Bounds
+--------------------------------------------------------------------------------
+Species R
+    Lower bound [ 0006, 0001 ]
+    Upper bound [ 0004, 0004 ]
+Species L
+    Lower bound [ 0002, 0001 ]
+    Upper bound [ 0002, 0002 ]
+Species RL
+    Lower bound [ 0000, 0000 ]
+    Upper bound [ 0001, 0004 ]
+Species G
+    Lower bound [ 0002, 0001 ]
+    Upper bound [ 0004, 0004 ]
+Species GA
+    Lower bound [ 0000, 0000 ]
+    Upper bound [ 0004, 0004 ]
+Species GBG
+    Lower bound [ 0000, 0000 ]
+    Upper bound [ 0004, 0004 ]
+Species GD
+    Lower bound [ 0000, 0000 ]
+    Upper bound [ 0001, 0000 ]

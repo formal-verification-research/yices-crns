@@ -10,14 +10,14 @@ from yices_utils import *
 # yices
 from yices import *
 
+print(80*"=")
+print("CRN Variable Bound Calculator")
+print(80*"=")
+
 # types for yices
 real_t = Types.real_type()
 int_t = Types.int_type()
 bool_t = Types.bool_type()
-
-print(80*"=")
-print("CRN Variable Bound Calculator")
-print(80*"=")
 
 # get command line arguments
 # command line instructions: python3 bounds.py model.crn (bv-bound)
@@ -30,7 +30,8 @@ filename = str(sys.argv[1])
 # find out how many bits if we added another command
 BITS = 8
 if len(sys.argv) == 3:
-    BITS = math.ceil(math.log2(sys.argv[2]))
+    BITS = math.ceil(math.log2(int(sys.argv[2])))
+print("Using", BITS, "bit vectors")
 
 def val_term(v):
     #return Terms.integer(v)
@@ -38,7 +39,6 @@ def val_term(v):
 
 zero = val_term(0)
 one = val_term(1)
-
 
 # define the bitvector type
 bv_t = Types.bv_type(BITS)
@@ -135,8 +135,12 @@ for r in reaction:
 TRANS = Terms.yor(encoded_reactions)
 
 # figure out the target
-# TODO: Make it adaptable to the desired inequality
-TARGET = geq_term(state_vars[target[0]], val_term(target[1]))
+if target[1] == "=" or target[1] == "==":
+    TARGET = eq_term(state_vars[target[0]], val_term(target[2]))
+elif target[1] == ">=":
+    TARGET = geq_term(state_vars[target[0]], val_term(target[2]))
+elif target[1] == "<=":
+    TARGET = geq_term(val_term(target[2]), state_vars[target[0]])
 
 # print for debugging purposes
 # print("INIT := " + Terms.to_string(INIT))
@@ -198,8 +202,8 @@ while True:
         k = k + 1
 
 print()
-# now find the bounds for each variable
 
+# now find the bounds for each variable
 print(80*"-")
 print("Bounding the species counts")
 print(80*"-")
@@ -222,22 +226,21 @@ def timed_tightub_state(k, bound, state):
         res.append(r)
     return Terms.yand(res)
 
-def timed_tightlb_state(k, bound, state):
-    # k is positive
-    bound_term = val_term(bound)
-    res = []
-    for i in range(k+1):
-        r = geq_term(bound_term, unroller.at_time(state, i))
-        res.append(r)
-    res.append(INIT)
-    return Terms.yor(res)
-
 def timed_looselb_state(k, bound, state):
     # k is positive
     bound_term = val_term(bound)
     res = []
     for i in range(k+1):
-        r = geq_term(unroller.at_time(state, i), bound_term)
+        r = leq_term(unroller.at_time(state, i), bound_term)
+        res.append(r)
+    return Terms.yor(res)
+
+def timed_tightlb_state(k, bound, state):
+    # k is positive
+    bound_term = val_term(bound)
+    res = []
+    for i in range(k+1):
+        r = leq_term(bound_term, unroller.at_time(state, i))
         res.append(r)
     return Terms.yand(res)
 
@@ -254,21 +257,20 @@ for s in init:
     bound = 0
     max_bound = 2**BITS - 1
     while True:
-        if bound == max_bound:
-            print("Final", s, "loose upper bound is: ", bound - 1)
-            ub_loose[s] = bound - 1
-            break
         yices_ctx.assert_formula(timed_looseub_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
+            if bound == max_bound:
+                ub_loose[s] = bound
+                break
             bound = bound + 1
         elif status == Status.UNSAT:
-            print("Final", s, "loose upper bound is", bound - 1)
             ub_loose[s] = bound - 1
             break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
+    print(str(s) + "\tloose upper bound is:\t" + str(ub_loose[s]))
     yices_ctx.pop()
 
 print(30*".")
@@ -279,99 +281,87 @@ for s in init:
     bound = 2**BITS - 1
     min_bound = 0
     while True:
-        if bound == min_bound:
-            print("Final", s, "tight upper bound is: ", bound + 1)
-            ub_tight[s] = bound + 1
-            break
         yices_ctx.assert_formula(timed_tightub_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
+            if bound == min_bound:
+                ub_tight[s] = bound
+                break
             bound = bound - 1
         elif status == Status.UNSAT:
-            print("Final", s, "tight upper bound is: ", bound + 1)
             ub_tight[s] = bound + 1
             break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
+    print(str(s) + "\ttight upper bound is:\t" + str(ub_tight[s]))
     yices_ctx.pop()
 
 print(30*".")
 
-# step 3: tightest lower bounds
+# step 3: loosest lower bounds
 for s in init:
     if init[s] == 0:
-        print("Final", s, "tight lower bound is: 0")
-        lb_tight[s] = 0
+        lb_loose[s] = 0
+        print(str(s) + "\tloose lower bound is:\t" + str(lb_loose[s]))
         continue
     yices_ctx.push()
     bound = 2**BITS - 1
     min_bound = 0
     while True:
-        if bound == min_bound:
-            if init[s] < bound + 1:
-                print("Final", s, "tight lower bound is: ", init[s])
-                lb_tight[s] = init[s]
-            else:
-                print("Final", s, "tight lower bound is: ", bound + 1)
-                lb_tight[s] = bound + 1
-            break
-        yices_ctx.assert_formula(timed_tightlb_state(k, bound, state_vars[s]))
+        yices_ctx.assert_formula(timed_looselb_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
+            if bound == min_bound:
+                lb_loose[s] = bound
+                break
             bound = bound - 1
         elif status == Status.UNSAT:
-            if init[s] < bound + 1:
-                print("Final", s, "tight lower bound is: ", init[s])
-                lb_tight[s] = init[s]
-            else:
-                print("Final", s, "tight lower bound is: ", bound + 1)
-                lb_tight[s] = bound + 1
+            lb_loose[s] = bound + 1
             break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
+    print(str(s) + "\tloose lower bound is:\t" + str(lb_loose[s]))
     yices_ctx.pop()
 
 print(30*".")
 
-# step 4: loosest lower bounds
+# step 4: tightest lower bounds
 for s in init:
     yices_ctx.push()
     bound = 0
-    min_bound = 2**BITS - 1
+    max_bound = 2**BITS - 1
     while True:
-        if bound == min_bound:
-            if init[s] < bound + 1:
-                print("Final", s, "loose lower bound is: ", init[s])
-                lb_loose[s] = init[s]
-            else:
-                print("Final", s, "loose lower bound is: ", bound + 1)
-                lb_loose[s] = bound + 1
-            break
-        yices_ctx.assert_formula(timed_looselb_state(k, bound, state_vars[s]))
+        yices_ctx.assert_formula(timed_tightlb_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
+            if bound == max_bound:
+                if init[s] < bound:
+                    lb_tight[s] = init[s]
+                else:
+                    lb_tight[s] = bound
+                break
             bound = bound + 1
         elif status == Status.UNSAT:
-            if init[s] < bound + 1:
-                print("Final", s, "loose lower bound is: ", init[s])
-                lb_loose[s] = init[s]
+            if init[s] < bound - 1:
+                lb_tight[s] = init[s]
             else:
-                print("Final", s, "loose lower bound is: ", bound + 1)
-                lb_loose[s] = bound + 1
+                lb_tight[s] = bound - 1
             break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
+    print(str(s) + "\ttight lower bound is:\t" + str(lb_tight[s]))
     yices_ctx.pop()
 
+print()
 print(80*"-")
-print("Final Bounds")
+print("Final Bounds for Trace Length", k)
 print(80*"-")
 
 for s in init:
     print("Species", s)
-    print("    Lower bound [ %04d, %04d ]" % (lb_loose[s],lb_tight[s]))
-    print("    Upper bound [ %04d, %04d ]" % (ub_tight[s],ub_loose[s]))
+    print("    Lower bound [ %4d, %4d ]" % (lb_loose[s],lb_tight[s]))
+    print("    Upper bound [ %4d, %4d ]" % (ub_tight[s],ub_loose[s]))
     # print("    Upper bound [", ub_tight[s], ",", ub_loose[s], "]")

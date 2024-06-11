@@ -52,7 +52,7 @@ def parse_model(filename):
                     print("I read", " ".join(ls))
                     print("\nERROR: INVALID INPUT FORMAT")
                     exit(1)
-                target = (ls[1], ls[3])
+                target = (ls[1], ls[2], ls[3])
             # reaction tells us what reaction we're looking at and
             # starts building a tuple
             elif "reaction" in line:
