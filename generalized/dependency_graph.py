@@ -4,7 +4,7 @@ import sys
 from xmlrpc.client import MAXINT
 from parse_model import *
 
-DEBUG = True
+DEBUG = False
 
 class DepNode:
     def __init__(self, reaction):
@@ -42,9 +42,10 @@ class DepNode:
 
 def make_dependency_graph(init, target, reactions, INnode=None, parents=[], depth=0):
     
-    lineStart = depth*"  "
+    lineStart = depth*" "
 
-    print(lineStart, 50*"=")
+    if DEBUG:
+        print(lineStart, 50*"=")
 
     # figure out how far away we are from the targets
     target_species = {}
@@ -135,7 +136,12 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
 
     # base case
     if node.enabled:
-        print(lineStart, "ENABLED")
+        if node.reaction:
+            print(lineStart, "Initially enabled:", node.reaction.name, "with", node.reaction.dep_executions, "executions")
+        else:
+            print(lineStart, "Initially enabled: target")
+        if DEBUG:
+            print(lineStart, 50*"=")
         return True
 
     # handle cycles
@@ -149,6 +155,8 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
 
     if node.reaction in modified_parents:
         print(lineStart, "THERE WAS A CYCLIC DEPENDENCY")
+        if DEBUG:
+            print(lineStart, 50*"=")
         return False
     
     # figure out what reactions we need for each target
@@ -196,13 +204,56 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
                             print(lineStart, "Added dependency", node.dependencies[r].reaction.name)
                             print(lineStart, "with executions", node.dependencies[r].executions)
 
-    for d in node.dependencies:
-        print(lineStart, "DEP", node.dependencies[d].reaction.name)
+    if DEBUG:
+        for d in node.dependencies:
+            print(lineStart, "DEP", node.dependencies[d].reaction.name)
     
     # RECURSE
     
-    can_work = True
+    target_sat = []
     for d in node.dependencies:
-        make_dependency_graph(modified_init, modified_target, reactions, node.dependencies[d], modified_parents, depth+1)
+        temp_target = {}
+        for t in modified_target:
+            for s in node.dependencies[d].species_desired:
+                if modified_target[t][0] == s:
+                    temp_target[t] = modified_target[t]
+                elif modified_init[t] < 0:
+                    modified_init[t] = 0
+        if DEBUG:
+            print(lineStart, "Found dependency", node.dependencies[d].reaction.name, "with target", temp_target)
+        else:
+            print(lineStart, "Found dependency", node.dependencies[d].reaction.name)
+        
+        # for i in modified_init:
+        #     if s not in node.dependencies[d].species_desired and modified_init[t] < 0:
+        #         modified_init[t] = 0
+        
+        enabled_dep = make_dependency_graph(modified_init, temp_target, reactions, node.dependencies[d], modified_parents, depth+1)
+        # if not enabled_dep:
+        #     can_work = False
+        if enabled_dep:
+            for t in temp_target:
+                target_sat.append(t)
         #TODO: Check if this reaction is now enabled, delete this node if not
-                    
+        #TODO: Handle contradictory targets
+        #TODO: Communcate AND/OR relations among children
+    all_done = True
+    for t in modified_target:
+        if t not in target_sat:
+            all_done = False
+    reachable = False
+    if all_done:
+        if node.reaction:
+            print(lineStart, "All dependencies are enabled for", node.reaction.name, "with", node.reaction.dep_executions, "executions")
+        else:
+            print(lineStart, "All dependencies are enabled for target")
+        reachable = True
+    if DEBUG:
+        print(lineStart, 50*"=")
+    
+    if node.reaction:
+        print(lineStart, "Not possible:", node.reaction.name)
+    else:
+        print(lineStart, "Not possible: target")
+
+    return reachable

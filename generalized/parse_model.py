@@ -133,4 +133,5 @@ if __name__ == "__main__":
 
     target_dict = {}
     target_dict[target[0]] = target
-    make_dependency_graph(init, target_dict, reaction)
+    reachable = make_dependency_graph(init, target_dict, reaction)
+    print("Reachable?", reachable)
