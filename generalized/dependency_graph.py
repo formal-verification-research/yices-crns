@@ -117,7 +117,7 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
                 if c[0] == s:
                     modified_init[s] = modified_init[s] + (node.executions * int(c[1]))
             if modified_init[s] < 0:
-                modified_target[s] = (s, ">=", str(0-modified_init[s]))
+                modified_target[s] = (s, ">=", "0")
 
         node.enabled = True
         for c in node.reaction.consume:
@@ -140,7 +140,14 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
 
     # handle cycles
     # TODO: make sure this works, might need to return something else?
-    if node.reaction in node.parents:
+    if node.reaction:
+        modified_parents = parents + [node.reaction.name]
+        if DEBUG:
+            print(lineStart, "modified_parents", modified_parents)
+    else:
+        modified_parents = parents
+
+    if node.reaction in modified_parents:
         print(lineStart, "THERE WAS A CYCLIC DEPENDENCY")
         return False
     
@@ -150,7 +157,7 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
         if DEBUG:
             print(lineStart, "working on target", target[t])
             print(lineStart, "delta_target", delta_target)
-        if delta_target <= 0:
+        if delta_target == 0:
             print(lineStart, "Found reactions to meet the target, now looking for their dependencies")
         else:
             if t in modified_target.keys():
@@ -161,12 +168,16 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
             print(lineStart, "modified_target 2", modified_target)
 
     for t in modified_target:
-        delta_target = int(modified_target[t][2]) - init[modified_target[t][0]]
+        if DEBUG:
+            print(lineStart, "working on modified_target", modified_target[t])
+        delta_target = int(modified_target[t][2]) - modified_init[modified_target[t][0]]
         if DEBUG:
             print(lineStart, "modified_target[t][2]", modified_target[t][2])
             print(lineStart, "modified_init[modified_target[t][0]]", modified_init[modified_target[t][0]])
             print(lineStart, "delta_target", delta_target)
         for r in reactions:
+            if r in modified_parents:
+                continue
             # if we need to generate a species
             if delta_target > 0: 
                 for s in reactions[r].produce:
@@ -177,10 +188,11 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
                             # s[1] is the stoichiometric constant for the species
                         node.dependencies[r].executions += needed_execs
                         node.dependencies[r].reaction.dep_executions += needed_execs
-                        node.dependencies[r].parents += node.parents
+                        node.dependencies[r].parents += modified_parents
+                        node.dependencies[r].species_desired += (s[0], delta_target)
 
                         if DEBUG:
-                            print(lineStart, "Reaction", r, "generates", modified_target[t][0])
+                            print(lineStart, "Reaction", r, "generates", node.dependencies[r].species_desired)
                             print(lineStart, "Added dependency", node.dependencies[r].reaction.name)
                             print(lineStart, "with executions", node.dependencies[r].executions)
 
@@ -188,7 +200,9 @@ def make_dependency_graph(init, target, reactions, INnode=None, parents=[], dept
         print(lineStart, "DEP", node.dependencies[d].reaction.name)
     
     # RECURSE
+    
+    can_work = True
     for d in node.dependencies:
-        make_dependency_graph(modified_init, modified_target, reactions, node.dependencies[d], parents, depth+1)
-                        
+        make_dependency_graph(modified_init, modified_target, reactions, node.dependencies[d], modified_parents, depth+1)
+        #TODO: Check if this reaction is now enabled, delete this node if not
                     

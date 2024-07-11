@@ -25,10 +25,11 @@ Reaction R8
  working on target ('GBG', '=', '50')
  delta_target 50
  modified_target 2 {'GBG': ('GBG', '=', '50')}
+ working on modified_target ('GBG', '=', '50')
  modified_target[t][2] 50
  modified_init[modified_target[t][0]] 0
  delta_target 50
- Reaction R5 generates GBG
+ Reaction R5 generates ['GBG', 50]
  Added dependency R5
  with executions 50
  DEP R5
@@ -36,18 +37,20 @@ Reaction R8
    Reaction R5 .executions 50
    init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
    modified_init {'R': 50, 'L': 2, 'RL': -50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
-   modified_target 1 {'RL': ('RL', '>=', '50')}
+   modified_target 1 {'RL': ('RL', '>=', '0')}
+   modified_parents ['R5']
    working on target ('GBG', '=', '50')
    delta_target 0
    Found reactions to meet the target, now looking for their dependencies
-   modified_target 2 {'RL': ('RL', '>=', '50')}
-   modified_target[t][2] 50
+   modified_target 2 {'RL': ('RL', '>=', '0')}
+   working on modified_target ('RL', '>=', '0')
+   modified_target[t][2] 0
    modified_init[modified_target[t][0]] -50
    delta_target 50
-   Reaction R3 generates RL
+   Reaction R3 generates ['RL', 50]
    Added dependency R3
    with executions 50
-   Reaction R8 generates RL
+   Reaction R8 generates ['RL', 50]
    Added dependency R8
    with executions 50
    DEP R3
