@@ -1,0 +1,66 @@
+Testing parser on ypm.crn
+{'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
+('GBG', '=', '50')
+R1
+Reaction R1
+R2
+Reaction R2
+R3
+Reaction R3
+R4
+Reaction R4
+R5
+Reaction R5
+R6
+Reaction R6
+R7
+Reaction R7
+R8
+Reaction R8
+ ==================================================
+ target.executions 50
+ init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
+ modified_init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
+ modified_target 1 {}
+ working on target ('GBG', '=', '50')
+ delta_target 50
+ modified_target 2 {'GBG': ('GBG', '=', '50')}
+ modified_target[t][2] 50
+ modified_init[modified_target[t][0]] 0
+ delta_target 50
+ Reaction R5 generates GBG
+ Added dependency R5
+ with executions 50
+ DEP R5
+   ==================================================
+   Reaction R5 .executions 50
+   init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
+   modified_init {'R': 50, 'L': 2, 'RL': -50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
+   modified_target 1 {'RL': ('RL', '>=', '50')}
+   working on target ('GBG', '=', '50')
+   delta_target 0
+   Found reactions to meet the target, now looking for their dependencies
+   modified_target 2 {'RL': ('RL', '>=', '50')}
+   modified_target[t][2] 50
+   modified_init[modified_target[t][0]] -50
+   delta_target 50
+   Reaction R3 generates RL
+   Added dependency R3
+   with executions 50
+   Reaction R8 generates RL
+   Added dependency R8
+   with executions 50
+   DEP R3
+   DEP R8
+     ==================================================
+     Reaction R3 .executions 50
+     init {'R': 50, 'L': 2, 'RL': -50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
+     modified_init {'R': 0, 'L': 2, 'RL': 0, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
+     modified_target 1 {}
+     ENABLED
+     ==================================================
+     Reaction R8 .executions 50
+     init {'R': 50, 'L': 2, 'RL': -50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
+     modified_init {'R': 50, 'L': 2, 'RL': 0, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
+     modified_target 1 {}
+     ENABLED

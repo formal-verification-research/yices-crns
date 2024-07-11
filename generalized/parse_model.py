@@ -10,15 +10,15 @@ class Reaction:
     def __str__(self) -> str:
         s = ""
         s = s+("Reaction " + self.name)
-        s = s+("\n")
-        for c in self.consume:
-            s = s+"GEN "+str(c)
-            s = s+("\n")
-        for p in self.produce:
-            s = s+"CON "+str(p)
-            s = s+("\n")
-        s = s+str(self.const)
-        s = s+("\n")
+        # s = s+("\n")
+        # for c in self.consume:
+        #     s = s+"CON "+str(c)
+        #     s = s+("\n")
+        # for p in self.produce:
+        #     s = s+"GEN "+str(p)
+        #     s = s+("\n")
+        # s = s+str(self.const)
+        # s = s+("\n")
         return s
 
 def parse_model(filename):
@@ -128,3 +128,9 @@ if __name__ == "__main__":
     for r in reaction:
         print(r)
         print(reaction[r])
+
+    from dependency_graph import *
+
+    target_dict = {}
+    target_dict[target[0]] = target
+    make_dependency_graph(init, target_dict, reaction)
