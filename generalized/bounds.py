@@ -4,6 +4,7 @@ import math
 
 # local
 from parse_model import *
+from dependency_graph import *
 from unroller import *
 from yices_utils import *
 

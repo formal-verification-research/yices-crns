@@ -1,0 +1,31 @@
+Testing parser on 6react.crn
+{'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
+('s5', '=', '25')
+R1
+R1
+R2
+R2
+R3
+R3
+R4
+R4
+R5
+R5
+R6
+R6
+ Found dependency R4
+  Found dependency R5
+   Initially enabled: R5 with 24 executions
+  temp target s4
+  Found dependency R6
+   Initially enabled: R6 with 24 executions
+  temp target s4
+  Reachable: R4 False
+ Reachable: target False
+Reachable? False
+Dep Graph:
+target -25 times to produce []
+|R4 25 times to produce ['s5', -25]
+||R5 24 times to produce ['s4', 24]
+||R6 24 times to produce ['s4', 24]
+

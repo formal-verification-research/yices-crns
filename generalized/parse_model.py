@@ -5,20 +5,21 @@ class Reaction:
         self.consume = []
         self.produce = []
         self.const = 0.00
+        self.dep_executions = 0
 
     def __str__(self) -> str:
-        s = ""
-        s = s+("Reaction " + self.name)
-        s = s+("\n")
-        for c in self.consume:
-            s = s+"GEN "+str(c)
-            s = s+("\n")
-        for p in self.produce:
-            s = s+"CON "+str(p)
-            s = s+("\n")
-        s = s+str(self.const)
-        s = s+("\n")
-        return s
+        # s = ""
+        # s = s+("Reaction " + self.name)
+        # s = s+("\n")
+        # for c in self.consume:
+        #     s = s+"CON "+str(c)
+        #     s = s+("\n")
+        # for p in self.produce:
+        #     s = s+"GEN "+str(p)
+        #     s = s+("\n")
+        # s = s+str(self.const)
+        # s = s+("\n")
+        return self.name
 
 def parse_model(filename):
     init = dict()
@@ -117,13 +118,27 @@ def parse_model(filename):
     
     return init, target, reaction
 
+import dependency_graph
+
 if __name__ == "__main__":
-    print("Testing parser on ypm.crn")
+
+
+    model = "6react.crn"
+
+    print("Testing parser on", model)
     
-    init, target, reaction = parse_model("ypm.crn")
+    # init, target, reaction = parse_model("ypm.crn")
+    init, target, reaction = parse_model(model)
 
     print(init)
     print(target)
     for r in reaction:
         print(r)
         print(reaction[r])
+
+    target_dict = {}
+    target_dict[target[0]] = target
+    depnode, reachable = dependency_graph.make_dependency_graph(init, target_dict, reaction)
+    print("Reachable?", reachable)
+    print("Dep Graph:")
+    print(depnode)
