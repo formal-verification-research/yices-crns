@@ -1,0 +1,155 @@
+================================================================================
+CRN Variable Bound Calculator
+================================================================================
+Using 8 bit vectors
+--------------------------------------------------------------------------------
+Parsing the model from 6react.crn
+--------------------------------------------------------------------------------
+Parsed model. Results as follows.
+{'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
+('s5', '=', '25')
+R1
+R2
+R3
+R4
+R5
+R6
+--------------------------------------------------------------------------------
+Building the dependency graph
+--------------------------------------------------------------------------------
+ Recursing into dependency R4
+  Recursing into dependency R5
+   Initially enabled: R5 with 24 executions
+  targets_met ['s4']
+  Recursing into dependency R6
+   Initially enabled: R6 with 24 executions
+  targets_met ['s4', 's4']
+  ('s4', '>=', '0')
+ targets_met ['s5']
+ ('s5', '=', '25')
+Reachable? True
+Dep Graph:
+target -25 times to produce []
+|R4 25 times to produce [('s5', -25)]
+||R5 24 times to produce [('s4', 24)]
+||R6 24 times to produce [('s4', 24)]
+
+--------------------------------------------------------------------------------
+Building the yices model
+--------------------------------------------------------------------------------
+reaction R4
+sub s4 1
+sub s5 1
+add s6 1
+reaction R5
+sub s6 1
+add s4 1
+add s5 1
+reaction R6
+sub s6 1
+add s4 1
+add s2 1
+-- TIME   0 --
+-- TIME   1 --
+-- TIME   2 --
+-- TIME   3 --
+-- TIME   4 --
+-- TIME   5 --
+-- TIME   6 --
+-- TIME   7 --
+-- TIME   8 --
+-- TIME   9 --
+-- TIME  10 --
+-- TIME  11 --
+-- TIME  12 --
+-- TIME  13 --
+-- TIME  14 --
+-- TIME  15 --
+-- TIME  16 --
+-- TIME  17 --
+-- TIME  18 --
+-- TIME  19 --
+-- TIME  20 --
+-- TIME  21 --
+-- TIME  22 --
+-- TIME  23 --
+-- TIME  24 --
+-- TIME  25 --
+-- TIME  26 --
+-- TIME  27 --
+-- TIME  28 --
+-- TIME  29 --
+-- TIME  30 --
+-- TIME  31 --
+-- TIME  32 --
+-- TIME  33 --
+-- TIME  34 --
+-- TIME  35 --
+-- TIME  36 --
+-- TIME  37 --
+-- TIME  38 --
+-- TIME  39 --
+-- TIME  40 --
+-- TIME  41 --
+-- TIME  42 --
+-- TIME  43 --
+-- TIME  44 --
+-- TIME  45 --
+-- TIME  46 --
+-- TIME  47 --
+-- TIME  48 --
+-- TIME  49 --
+
+--------------------------------------------------------------------------------
+Bounding the species counts
+--------------------------------------------------------------------------------
+..............................
+s1	loose upper bound is:	1
+s2	loose upper bound is:	74
+s3	loose upper bound is:	0
+s4	loose upper bound is:	1
+s5	loose upper bound is:	50
+s6	loose upper bound is:	1
+..............................
+s1	tight upper bound is:	1
+s2	tight upper bound is:	74
+s3	tight upper bound is:	0
+s4	tight upper bound is:	1
+s5	tight upper bound is:	50
+s6	tight upper bound is:	1
+..............................
+s1	loose lower bound is:	1
+s2	loose lower bound is:	50
+s3	loose lower bound is:	0
+s4	loose lower bound is:	0
+s5	loose lower bound is:	25
+s6	loose lower bound is:	0
+..............................
+s1	tight lower bound is:	1
+s2	tight lower bound is:	50
+s3	tight lower bound is:	0
+s4	tight lower bound is:	0
+s5	tight lower bound is:	25
+s6	tight lower bound is:	0
+
+--------------------------------------------------------------------------------
+Final Bounds for Trace Length 49
+--------------------------------------------------------------------------------
+Species s1
+    Lower bound [    1,    1 ]
+    Upper bound [    1,    1 ]
+Species s2
+    Lower bound [   50,   50 ]
+    Upper bound [   74,   74 ]
+Species s3
+    Lower bound [    0,    0 ]
+    Upper bound [    0,    0 ]
+Species s4
+    Lower bound [    0,    0 ]
+    Upper bound [    1,    1 ]
+Species s5
+    Lower bound [   25,   25 ]
+    Upper bound [   50,   50 ]
+Species s6
+    Lower bound [    0,    0 ]
+    Upper bound [    1,    1 ]

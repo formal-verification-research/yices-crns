@@ -4,7 +4,7 @@ import sys
 from xmlrpc.client import MAXINT
 from parse_model import *
 
-DEBUG = True
+DEBUG = False
 
 class DepNode:
     def __init__(self, reaction):
