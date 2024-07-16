@@ -1,0 +1,150 @@
+================================================================================
+CRN Variable Bound Calculator
+================================================================================
+Using 8 bit vectors
+--------------------------------------------------------------------------------
+Parsing the model from abr.crn
+--------------------------------------------------------------------------------
+Parsed model. Results as follows.
+{'R': 20, 'L': 2, 'RL': 0, 'G': 20, 'GA': 0, 'GBG': 0, 'GD': 0}
+('GBG', '=', '20')
+R3
+R5
+R8
+--------------------------------------------------------------------------------
+Building the dependency graph
+--------------------------------------------------------------------------------
+ Recursing into dependency R5
+  Recursing into dependency R3
+   Initially enabled: R3 with 20 executions
+  targets_met ['RL']
+  Recursing into dependency R8
+   Initially enabled: R8 with 20 executions
+  targets_met ['RL', 'RL']
+  ('RL', '>=', '0')
+ targets_met ['GBG']
+ ('GBG', '=', '20')
+Reachable? True
+Dep Graph:
+target 20 times to produce []
+|R5 20 times to produce [('GBG', 20)]
+||R3 20 times to produce [('RL', 20)]
+||R8 20 times to produce [('RL', 20)]
+
+--------------------------------------------------------------------------------
+Building the yices model
+--------------------------------------------------------------------------------
+reaction R3
+sub R 1
+is_catalyst L L
+net zero 1 1
+add RL 1
+reaction R5
+sub RL 1
+sub G 1
+add GA 1
+add GBG 1
+reaction R8
+add RL 1
+-- TIME   0 --
+-- TIME   1 --
+-- TIME   2 --
+-- TIME   3 --
+-- TIME   4 --
+-- TIME   5 --
+-- TIME   6 --
+-- TIME   7 --
+-- TIME   8 --
+-- TIME   9 --
+-- TIME  10 --
+-- TIME  11 --
+-- TIME  12 --
+-- TIME  13 --
+-- TIME  14 --
+-- TIME  15 --
+-- TIME  16 --
+-- TIME  17 --
+-- TIME  18 --
+-- TIME  19 --
+-- TIME  20 --
+-- TIME  21 --
+-- TIME  22 --
+-- TIME  23 --
+-- TIME  24 --
+-- TIME  25 --
+-- TIME  26 --
+-- TIME  27 --
+-- TIME  28 --
+-- TIME  29 --
+-- TIME  30 --
+-- TIME  31 --
+-- TIME  32 --
+-- TIME  33 --
+-- TIME  34 --
+-- TIME  35 --
+-- TIME  36 --
+-- TIME  37 --
+-- TIME  38 --
+-- TIME  39 --
+-- TIME  40 --
+
+--------------------------------------------------------------------------------
+Bounding the species counts
+--------------------------------------------------------------------------------
+..............................
+R	loose upper bound is:	20
+L	loose upper bound is:	2
+RL	loose upper bound is:	20
+G	loose upper bound is:	20
+GA	loose upper bound is:	20
+GBG	loose upper bound is:	20
+GD	loose upper bound is:	0
+..............................
+R	tight upper bound is:	20
+L	tight upper bound is:	2
+RL	tight upper bound is:	1
+G	tight upper bound is:	20
+GA	tight upper bound is:	20
+GBG	tight upper bound is:	20
+GD	tight upper bound is:	0
+..............................
+R	loose lower bound is:	0
+L	loose lower bound is:	2
+RL	loose lower bound is:	0
+G	loose lower bound is:	0
+GA	loose lower bound is:	0
+GBG	loose lower bound is:	0
+GD	loose lower bound is:	0
+..............................
+R	tight lower bound is:	20
+L	tight lower bound is:	2
+RL	tight lower bound is:	0
+G	tight lower bound is:	0
+GA	tight lower bound is:	0
+GBG	tight lower bound is:	0
+GD	tight lower bound is:	0
+
+--------------------------------------------------------------------------------
+Final Bounds for Trace Length 40
+--------------------------------------------------------------------------------
+Species R
+    Lower bound [    0,   20 ]
+    Upper bound [   20,   20 ]
+Species L
+    Lower bound [    2,    2 ]
+    Upper bound [    2,    2 ]
+Species RL
+    Lower bound [    0,    0 ]
+    Upper bound [    1,   20 ]
+Species G
+    Lower bound [    0,    0 ]
+    Upper bound [   20,   20 ]
+Species GA
+    Lower bound [    0,    0 ]
+    Upper bound [   20,   20 ]
+Species GBG
+    Lower bound [    0,    0 ]
+    Upper bound [   20,   20 ]
+Species GD
+    Lower bound [    0,    0 ]
+    Upper bound [    0,    0 ]

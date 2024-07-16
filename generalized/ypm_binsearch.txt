@@ -1,0 +1,217 @@
+================================================================================
+CRN Variable Bound Calculator
+================================================================================
+Using 8 bit vectors
+--------------------------------------------------------------------------------
+Parsing the model from ypm.crn
+--------------------------------------------------------------------------------
+Parsed model. Results as follows.
+{'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
+('GBG', '=', '50')
+R1
+R2
+R3
+R4
+R5
+R6
+R7
+R8
+--------------------------------------------------------------------------------
+Building the dependency graph
+--------------------------------------------------------------------------------
+ Recursing into dependency R5
+  Recursing into dependency R3
+   Initially enabled: R3 with 50 executions
+  targets_met ['RL']
+  Recursing into dependency R8
+   Initially enabled: R8 with 50 executions
+  targets_met ['RL', 'RL']
+  ('RL', '>=', '0')
+ targets_met ['GBG']
+ ('GBG', '=', '50')
+Reachable? True
+Dep Graph:
+target 50 times to produce []
+|R5 50 times to produce [('GBG', 50)]
+||R3 50 times to produce [('RL', 50)]
+||R8 50 times to produce [('RL', 50)]
+
+--------------------------------------------------------------------------------
+Building the yices model
+--------------------------------------------------------------------------------
+reaction R3
+sub R 1
+is_catalyst L L
+net zero 1 1
+add RL 1
+reaction R5
+sub RL 1
+sub G 1
+add GA 1
+add GBG 1
+reaction R8
+add RL 1
+-- TIME   0 --
+-- TIME   1 --
+-- TIME   2 --
+-- TIME   3 --
+-- TIME   4 --
+-- TIME   5 --
+-- TIME   6 --
+-- TIME   7 --
+-- TIME   8 --
+-- TIME   9 --
+-- TIME  10 --
+-- TIME  11 --
+-- TIME  12 --
+-- TIME  13 --
+-- TIME  14 --
+-- TIME  15 --
+-- TIME  16 --
+-- TIME  17 --
+-- TIME  18 --
+-- TIME  19 --
+-- TIME  20 --
+-- TIME  21 --
+-- TIME  22 --
+-- TIME  23 --
+-- TIME  24 --
+-- TIME  25 --
+-- TIME  26 --
+-- TIME  27 --
+-- TIME  28 --
+-- TIME  29 --
+-- TIME  30 --
+-- TIME  31 --
+-- TIME  32 --
+-- TIME  33 --
+-- TIME  34 --
+-- TIME  35 --
+-- TIME  36 --
+-- TIME  37 --
+-- TIME  38 --
+-- TIME  39 --
+-- TIME  40 --
+-- TIME  41 --
+-- TIME  42 --
+-- TIME  43 --
+-- TIME  44 --
+-- TIME  45 --
+-- TIME  46 --
+-- TIME  47 --
+-- TIME  48 --
+-- TIME  49 --
+-- TIME  50 --
+-- TIME  51 --
+-- TIME  52 --
+-- TIME  53 --
+-- TIME  54 --
+-- TIME  55 --
+-- TIME  56 --
+-- TIME  57 --
+-- TIME  58 --
+-- TIME  59 --
+-- TIME  60 --
+-- TIME  61 --
+-- TIME  62 --
+-- TIME  63 --
+-- TIME  64 --
+-- TIME  65 --
+-- TIME  66 --
+-- TIME  67 --
+-- TIME  68 --
+-- TIME  69 --
+-- TIME  70 --
+-- TIME  71 --
+-- TIME  72 --
+-- TIME  73 --
+-- TIME  74 --
+-- TIME  75 --
+-- TIME  76 --
+-- TIME  77 --
+-- TIME  78 --
+-- TIME  79 --
+-- TIME  80 --
+-- TIME  81 --
+-- TIME  82 --
+-- TIME  83 --
+-- TIME  84 --
+-- TIME  85 --
+-- TIME  86 --
+-- TIME  87 --
+-- TIME  88 --
+-- TIME  89 --
+-- TIME  90 --
+-- TIME  91 --
+-- TIME  92 --
+-- TIME  93 --
+-- TIME  94 --
+-- TIME  95 --
+-- TIME  96 --
+-- TIME  97 --
+-- TIME  98 --
+-- TIME  99 --
+-- TIME 100 --
+
+--------------------------------------------------------------------------------
+Bounding the species counts
+--------------------------------------------------------------------------------
+..............................
+R	loose upper bound is:	50
+L	loose upper bound is:	2
+RL	loose upper bound is:	50
+G	loose upper bound is:	50
+GA	loose upper bound is:	50
+GBG	loose upper bound is:	50
+GD	loose upper bound is:	0
+..............................
+R	tight upper bound is:	50
+L	tight upper bound is:	2
+RL	tight upper bound is:	1
+G	tight upper bound is:	50
+GA	tight upper bound is:	50
+GBG	tight upper bound is:	50
+GD	tight upper bound is:	0
+..............................
+R	loose lower bound is:	0
+L	loose lower bound is:	2
+RL	loose lower bound is:	0
+G	loose lower bound is:	0
+GA	loose lower bound is:	0
+GBG	loose lower bound is:	0
+GD	loose lower bound is:	0
+..............................
+R	tight lower bound is:	50
+L	tight lower bound is:	2
+RL	tight lower bound is:	0
+G	tight lower bound is:	0
+GA	tight lower bound is:	0
+GBG	tight lower bound is:	0
+GD	tight lower bound is:	0
+
+--------------------------------------------------------------------------------
+Final Bounds for Trace Length 100
+--------------------------------------------------------------------------------
+Species R
+    Lower bound [    0,   50 ]
+    Upper bound [   50,   50 ]
+Species L
+    Lower bound [    2,    2 ]
+    Upper bound [    2,    2 ]
+Species RL
+    Lower bound [    0,    0 ]
+    Upper bound [    1,   50 ]
+Species G
+    Lower bound [    0,    0 ]
+    Upper bound [   50,   50 ]
+Species GA
+    Lower bound [    0,    0 ]
+    Upper bound [   50,   50 ]
+Species GBG
+    Lower bound [    0,    0 ]
+    Upper bound [   50,   50 ]
+Species GD
+    Lower bound [    0,    0 ]
+    Upper bound [    0,    0 ]
+
+python3 bounds.py ypm.crn > ypm_binsearch.txt  523.68s user 0.34s system 99% cpu 8:44.64 total

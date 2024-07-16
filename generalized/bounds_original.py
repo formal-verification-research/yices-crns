@@ -1,3 +1,6 @@
+# I kept this file to make it easier to do timing comparisons binary search vs this method
+
+
 # built-in
 import sys
 import math
@@ -79,6 +82,7 @@ if dependency:
     for r in k:
         if r not in reaction_list:
             reaction.pop(r)
+    
 
 # exit()
 
@@ -280,71 +284,46 @@ print(30*".")
 # step 1: loosest upper bounds
 for s in init:
     yices_ctx.push()
-    min_bound = 0
     bound = 0
     max_bound = 2**BITS - 1
     while True:
-        yices_ctx.push()
         yices_ctx.assert_formula(timed_looseub_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
             if bound == max_bound:
                 ub_loose[s] = bound
                 break
-            min_bound = bound
-            bound = bound + int((max_bound-bound) / 2)
+            bound = bound + 1
         elif status == Status.UNSAT:
-            if bound == max_bound:
-                ub_loose[s] = bound - 1
-                break
-            else:
-                max_bound = bound
-                if bound == 2**BITS-1:
-                    bound = 2**BITS-2
-                else:
-                    bound = bound - int((bound-min_bound) / 2)
+            ub_loose[s] = bound - 1
+            break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
-        yices_ctx.pop()
-    yices_ctx.pop()
     print(str(s) + "\tloose upper bound is:\t" + str(ub_loose[s]))
     yices_ctx.pop()
-
 
 print(30*".")
 
 # step 2: tightest upper bounds
 for s in init:
     yices_ctx.push()
-    max_bound = 2**BITS - 1
     bound = 2**BITS - 1
     min_bound = 0
     while True:
-        yices_ctx.push()
         yices_ctx.assert_formula(timed_tightub_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
             if bound == min_bound:
                 ub_tight[s] = bound
                 break
-            max_bound = bound
-            if bound == 1:
-                bound = 0
-            else:
-                bound = bound - int((bound-min_bound) / 2)
+            bound = bound - 1
         elif status == Status.UNSAT:
-            if bound == min_bound:
-                ub_tight[s] = bound + 1
-                break
-            else:
-                min_bound = bound
-                bound = bound + int((max_bound-bound) / 2)
+            ub_tight[s] = bound + 1
+            break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
-        yices_ctx.pop()
-    yices_ctx.pop()
     print(str(s) + "\ttight upper bound is:\t" + str(ub_tight[s]))
     yices_ctx.pop()
 
@@ -357,34 +336,22 @@ for s in init:
         print(str(s) + "\tloose lower bound is:\t" + str(lb_loose[s]))
         continue
     yices_ctx.push()
-    max_bound = 2**BITS - 1
     bound = 2**BITS - 1
     min_bound = 0
     while True:
-        yices_ctx.push()
         yices_ctx.assert_formula(timed_looselb_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
             if bound == min_bound:
                 lb_loose[s] = bound
                 break
-            max_bound = bound
-            if bound == 1:
-                bound = 0
-            else:
-                bound = bound - int((bound-min_bound) / 2)
+            bound = bound - 1
         elif status == Status.UNSAT:
-            if bound == min_bound:
-                lb_loose[s] = bound + 1
-                break
-            else:
-                min_bound = bound
-                bound = bound + int((max_bound-bound) / 2)
+            lb_loose[s] = bound + 1
+            break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
-        yices_ctx.pop()
-    yices_ctx.pop()
     print(str(s) + "\tloose lower bound is:\t" + str(lb_loose[s]))
     yices_ctx.pop()
 
@@ -396,30 +363,25 @@ for s in init:
     bound = 0
     max_bound = 2**BITS - 1
     while True:
-        yices_ctx.push()
         yices_ctx.assert_formula(timed_tightlb_state(k, bound, state_vars[s]))
         status = yices_ctx.check_context_with_assumptions(None, [assump])
         if status == Status.SAT:
             if bound == max_bound:
-                lb_tight[s] = bound
-                break
-            min_bound = bound
-            bound = bound + int((max_bound-bound) / 2)
-        elif status == Status.UNSAT:
-            if bound == max_bound:
-                lb_tight[s] = bound - 1
-                break
-            else:
-                max_bound = bound
-                if bound == 2**BITS-1:
-                    bound = 2**BITS-2
+                if init[s] < bound:
+                    lb_tight[s] = init[s]
                 else:
-                    bound = bound - int((bound-min_bound) / 2)
+                    lb_tight[s] = bound
+                break
+            bound = bound + 1
+        elif status == Status.UNSAT:
+            if init[s] < bound - 1:
+                lb_tight[s] = init[s]
+            else:
+                lb_tight[s] = bound - 1
+            break
         else:
             print("THIS SHOULDN'T HAVE HAPPENED")
             break
-        yices_ctx.pop()
-    yices_ctx.pop()
     print(str(s) + "\ttight lower bound is:\t" + str(lb_tight[s]))
     yices_ctx.pop()
 
