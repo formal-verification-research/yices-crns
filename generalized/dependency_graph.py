@@ -4,7 +4,7 @@ import sys
 from xmlrpc.client import MAXINT
 from parse_model import *
 
-DEBUG = False
+DEBUG = True
 
 class DepNode:
     def __init__(self, reaction):
@@ -47,6 +47,19 @@ class DepNode:
             s = s + self.dependencies[d].to_string(depth+1)
 
         return s
+    
+    # returns the strictly-necessary reactions to include in the bmc
+    def to_list(self):
+        s = []
+
+        if self.reaction and self.enabled:
+            s.append(self.reaction.name)
+
+        for d in self.dependencies:
+            s = s + (self.dependencies[d].to_list())
+
+        return s
+        
 
 # init: species counts as if they were the initial state
 # target: target tuple (limited to one target for now)
@@ -111,6 +124,7 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
         node = inputNode
 
     if DEBUG:
+        print(lineStart, "desired", node.species_desired)
         if node.reaction:
             print(lineStart, str(node.reaction), ".executions", node.executions)
         else:
@@ -168,7 +182,7 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
             print(lineStart, 50*"=")
         if DEBUG:
             print(lineStart, "returning at point 1")
-        return node, True
+        return node
 
     # handle cycles
     # TODO: make sure this works, might need to return something else?
@@ -185,7 +199,7 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
             print(lineStart, 50*"=")
         if DEBUG:
             print(lineStart, "returning at point 2")
-        return node, False
+        return node
     
     # figure out what reactions we need for each target
     # modified_target 2
@@ -216,8 +230,8 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
             print(lineStart, "modified_init[modified_target[t][0]]", modified_init[modified_target[t][0]])
             print(lineStart, "delta_target", delta_target)
         for r in reactions:
-            if r in modified_parents:
-                continue
+            # if r in modified_parents:
+            #     continue
             # if we need to generate a species
             if delta_target > 0: 
                 for s in reactions[r].produce:
@@ -229,7 +243,7 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
                         node.dependencies[r].executions += needed_execs
                         node.dependencies[r].reaction.dep_executions += needed_execs
                         node.dependencies[r].parents += modified_parents
-                        node.dependencies[r].species_desired += (s[0], delta_target)
+                        node.dependencies[r].species_desired.append(tuple([s[0], delta_target]))
 
                         if DEBUG:
                             print(lineStart, "Reaction", r, "generates", node.dependencies[r].species_desired)
@@ -245,7 +259,7 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
                         node.dependencies[r].executions += needed_execs
                         node.dependencies[r].reaction.dep_executions += needed_execs
                         node.dependencies[r].parents += modified_parents
-                        node.dependencies[r].species_desired += (s[0], delta_target)
+                        node.dependencies[r].species_desired.append(tuple([s[0], delta_target]))
 
                         if DEBUG:
                             print(lineStart, "Reaction", r, "consumes", node.dependencies[r].species_desired)
@@ -258,8 +272,9 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
     
     # RECURSE
     
-    target_sat = []
-    for d in node.dependencies:
+    targets_met = []
+    keys = list(node.dependencies.keys())
+    for d in keys:
         temp_target = {}
         for t in modified_target:
             for s in node.dependencies[d].species_desired:
@@ -268,49 +283,32 @@ def make_dependency_graph(init, target, reactions, inputNode=None, parents=[], d
                 elif modified_init[t] < 0:
                     modified_init[t] = 0
         if DEBUG:
-            print(lineStart, "Found dependency", node.dependencies[d].reaction.name, "with target", temp_target)
+            print(lineStart, "Recursing into dependency", node.dependencies[d].reaction.name, "with target", temp_target)
         else:
-            print(lineStart, "Found dependency", node.dependencies[d].reaction.name)
+            print(lineStart, "Recursing into dependency", node.dependencies[d].reaction.name)
         
-        # for i in modified_init:
-        #     if s not in node.dependencies[d].species_desired and modified_init[t] < 0:
-        #         modified_init[t] = 0
+        child_node = make_dependency_graph(modified_init, temp_target, reactions, node.dependencies[d], modified_parents, depth+1)
         
-        child_node, enabled_dep = make_dependency_graph(modified_init, temp_target, reactions, node.dependencies[d], modified_parents, depth+1)
-        # if not enabled_dep:
-        #     can_work = False
-        if enabled_dep:
-            for t in temp_target:
-                print(lineStart, "temp target", t)
-                target_sat.append(t)
-        #TODO: Check if this reaction is now enabled, delete this node if not
-        #TODO: Handle contradictory targets
-        #TODO: Communcate AND/OR relations among children
-    all_done = True
-    if not node.enabled:
-        if DEBUG:
-            print(lineStart, "not finished because not enabled")
-        all_done = False
-    for t in modified_target:
-        if t not in target_sat:
-            if DEBUG:
-                print(lineStart, "not finished because", t, "not in target_sat")
-            all_done = False
-    reachable = False
-    if all_done:
-        if node.reaction:
-            print(lineStart, "All dependencies are enabled for", node.reaction.name, "with", node.reaction.dep_executions, "executions")
+        if child_node.enabled:
+            for sd in child_node.species_desired:
+                targets_met.append(sd[0])
+
+            # targets_met.append(child_node.species_desired[0])
+            print(lineStart, "targets_met", targets_met)
         else:
-            print(lineStart, "All dependencies are enabled for target")
-        reachable = True
-    if DEBUG:
-        print(lineStart, 50*"=")
-    
-    if node.reaction:
-        print(lineStart, "Reachable:", node.reaction.name, reachable)
-    else:
-        print(lineStart, "Reachable: target", reachable)
+            node.dependencies.pop(d)
+
+    if len(modified_target) > 0:
+        node.enabled = True
+
+    for mt in modified_target:
+        print(lineStart, modified_target[mt])
+        if mt not in targets_met:
+            node.enabled = False
+            print(lineStart, "NOT ENABLED:", mt, targets_met)
+
 
     if DEBUG:
-        print(lineStart, "returning at end")
-    return node, reachable
+        print(lineStart, "returning at end", node.enabled)
+        print(lineStart, 50*"=")
+    return node
