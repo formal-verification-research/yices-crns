@@ -19,73 +19,16 @@ R8
 --------------------------------------------------------------------------------
 Building the dependency graph
 --------------------------------------------------------------------------------
- ==================================================
- desired []
- target.executions 50
- init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
- modified_init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
- modified_target 1 {}
- working on target ('GBG', '=', '50')
- delta_target 50
- modified_target 2 {'GBG': ('GBG', '=', '50')}
- working on modified_target ('GBG', '=', '50')
- modified_target[t][2] 50
- modified_init[modified_target[t][0]] 0
- delta_target 50
- Reaction R5 generates [('GBG', 50)]
- Added dependency R5
- with executions 50
- DEP R5
- Recursing into dependency R5 with target {}
-  ==================================================
-  desired [('GBG', 50)]
-  R5 .executions 50
-  init {'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 0, 'GD': 0}
-  node not enabled at point 2
-  modified_init {'R': 50, 'L': 2, 'RL': -50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
-  modified_target 1 {'RL': ('RL', '>=', '0')}
-  modified_parents ['R5']
-  working on modified_target ('RL', '>=', '0')
-  modified_target[t][2] 0
-  modified_init[modified_target[t][0]] -50
-  delta_target 50
-  Reaction R3 generates [('RL', 50)]
-  Added dependency R3
-  with executions 50
-  Reaction R8 generates [('RL', 50)]
-  Added dependency R8
-  with executions 50
-  DEP R3
-  DEP R8
-  Recursing into dependency R3 with target {}
-   ==================================================
-   desired [('RL', 50)]
-   R3 .executions 50
-   init {'R': 50, 'L': 2, 'RL': 0, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
-   modified_init {'R': 0, 'L': 2, 'RL': 50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
-   modified_target 1 {}
+ Recursing into dependency R5
+  Recursing into dependency R3
    Initially enabled: R3 with 50 executions
-   ==================================================
-   returning at point 1
   targets_met ['RL']
-  Recursing into dependency R8 with target {}
-   ==================================================
-   desired [('RL', 50)]
-   R8 .executions 50
-   init {'R': 50, 'L': 2, 'RL': 0, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
-   modified_init {'R': 50, 'L': 2, 'RL': 50, 'G': 0, 'GA': 50, 'GBG': 50, 'GD': 0}
-   modified_target 1 {}
+  Recursing into dependency R8
    Initially enabled: R8 with 50 executions
-   ==================================================
-   returning at point 1
   targets_met ['RL', 'RL']
   ('RL', '>=', '0')
-  returning at end True
-  ==================================================
  targets_met ['GBG']
  ('GBG', '=', '50')
- returning at end True
- ==================================================
 Reachable? True
 Dep Graph:
 target 50 times to produce []
@@ -181,3 +124,92 @@ add RL 1
 -- TIME  70 --
 -- TIME  71 --
 -- TIME  72 --
+-- TIME  73 --
+-- TIME  74 --
+-- TIME  75 --
+-- TIME  76 --
+-- TIME  77 --
+-- TIME  78 --
+-- TIME  79 --
+-- TIME  80 --
+-- TIME  81 --
+-- TIME  82 --
+-- TIME  83 --
+-- TIME  84 --
+-- TIME  85 --
+-- TIME  86 --
+-- TIME  87 --
+-- TIME  88 --
+-- TIME  89 --
+-- TIME  90 --
+-- TIME  91 --
+-- TIME  92 --
+-- TIME  93 --
+-- TIME  94 --
+-- TIME  95 --
+-- TIME  96 --
+-- TIME  97 --
+-- TIME  98 --
+-- TIME  99 --
+-- TIME 100 --
+
+--------------------------------------------------------------------------------
+Bounding the species counts
+--------------------------------------------------------------------------------
+..............................
+R	loose upper bound is:	50
+L	loose upper bound is:	2
+RL	loose upper bound is:	50
+G	loose upper bound is:	50
+GA	loose upper bound is:	50
+GBG	loose upper bound is:	50
+GD	loose upper bound is:	0
+..............................
+R	tight upper bound is:	50
+L	tight upper bound is:	2
+RL	tight upper bound is:	1
+G	tight upper bound is:	50
+GA	tight upper bound is:	50
+GBG	tight upper bound is:	50
+GD	tight upper bound is:	0
+..............................
+R	loose lower bound is:	0
+L	loose lower bound is:	2
+RL	loose lower bound is:	0
+G	loose lower bound is:	0
+GA	loose lower bound is:	0
+GBG	loose lower bound is:	0
+GD	loose lower bound is:	0
+..............................
+R	tight lower bound is:	50
+L	tight lower bound is:	2
+RL	tight lower bound is:	0
+G	tight lower bound is:	0
+GA	tight lower bound is:	0
+GBG	tight lower bound is:	0
+GD	tight lower bound is:	0
+
+--------------------------------------------------------------------------------
+Final Bounds for Trace Length 100
+--------------------------------------------------------------------------------
+Species R
+    Lower bound [    0,   50 ]
+    Upper bound [   50,   50 ]
+Species L
+    Lower bound [    2,    2 ]
+    Upper bound [    2,    2 ]
+Species RL
+    Lower bound [    0,    0 ]
+    Upper bound [    1,   50 ]
+Species G
+    Lower bound [    0,    0 ]
+    Upper bound [   50,   50 ]
+Species GA
+    Lower bound [    0,    0 ]
+    Upper bound [   50,   50 ]
+Species GBG
+    Lower bound [    0,    0 ]
+    Upper bound [   50,   50 ]
+Species GD
+    Lower bound [    0,    0 ]
+    Upper bound [    0,    0 ]

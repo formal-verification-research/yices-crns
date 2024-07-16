@@ -81,7 +81,7 @@ if dependency:
             reaction.pop(r)
     
 
-exit()
+# exit()
 
 print(80*"-")
 print("Building the yices model")
