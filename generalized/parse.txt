@@ -1,31 +1,93 @@
-Testing parser on 6react.crn
+================================================================================
+CRN Variable Bound Calculator
+================================================================================
+Using 8 bit vectors
+--------------------------------------------------------------------------------
+Parsing the model from 6react.crn
+--------------------------------------------------------------------------------
+Parsed model. Results as follows.
 {'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
 ('s5', '=', '25')
 R1
-R1
-R2
 R2
 R3
-R3
-R4
 R4
 R5
-R5
 R6
-R6
- Found dependency R4
-  Found dependency R5
+--------------------------------------------------------------------------------
+Building the dependency graph
+--------------------------------------------------------------------------------
+ ==================================================
+ desired []
+ target.executions -25
+ init {'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
+ modified_init {'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
+ modified_target 1 {}
+ working on target ('s5', '=', '25')
+ delta_target 25
+ modified_target 2 {'s5': ('s5', '=', '25')}
+ working on modified_target ('s5', '=', '25')
+ modified_target[t][2] 25
+ modified_init[modified_target[t][0]] 50
+ delta_target -25
+ Reaction R4 consumes [('s5', -25)]
+ Added dependency R4
+ with executions 25
+ DEP R4
+ Recursing into dependency R4 with target {}
+  ==================================================
+  desired [('s5', -25)]
+  R4 .executions 25
+  init {'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
+  node not enabled at point 2
+  modified_init {'s1': 1, 's2': 50, 's3': 0, 's4': -24, 's5': 25, 's6': 25}
+  modified_target 1 {'s4': ('s4', '>=', '0')}
+  modified_parents ['R4']
+  working on modified_target ('s4', '>=', '0')
+  modified_target[t][2] 0
+  modified_init[modified_target[t][0]] -24
+  delta_target 24
+  Reaction R5 generates [('s4', 24)]
+  Added dependency R5
+  with executions 24
+  Reaction R6 generates [('s4', 24)]
+  Added dependency R6
+  with executions 24
+  DEP R5
+  DEP R6
+  Recursing into dependency R5 with target {}
+   ==================================================
+   desired [('s4', 24)]
+   R5 .executions 24
+   init {'s1': 1, 's2': 50, 's3': 0, 's4': 0, 's5': 25, 's6': 25}
+   modified_init {'s1': 1, 's2': 50, 's3': 0, 's4': 24, 's5': 49, 's6': 1}
+   modified_target 1 {}
    Initially enabled: R5 with 24 executions
-  temp target s4
-  Found dependency R6
+   ==================================================
+   returning at point 1
+  targets_met ['s4']
+  Recursing into dependency R6 with target {}
+   ==================================================
+   desired [('s4', 24)]
+   R6 .executions 24
+   init {'s1': 1, 's2': 50, 's3': 0, 's4': 0, 's5': 25, 's6': 25}
+   modified_init {'s1': 1, 's2': 74, 's3': 0, 's4': 24, 's5': 25, 's6': 1}
+   modified_target 1 {}
    Initially enabled: R6 with 24 executions
-  temp target s4
-  Reachable: R4 False
- Reachable: target False
-Reachable? False
+   ==================================================
+   returning at point 1
+  targets_met ['s4', 's4']
+  ('s4', '>=', '0')
+  returning at end True
+  ==================================================
+ targets_met ['s5']
+ ('s5', '=', '25')
+ returning at end True
+ ==================================================
+Reachable? True
 Dep Graph:
 target -25 times to produce []
-|R4 25 times to produce ['s5', -25]
-||R5 24 times to produce ['s4', 24]
-||R6 24 times to produce ['s4', 24]
+|R4 25 times to produce [('s5', -25)]
+||R5 24 times to produce [('s4', 24)]
+||R6 24 times to produce [('s4', 24)]
 

@@ -11,6 +11,9 @@ from yices_utils import *
 # yices
 from yices import *
 
+# TODO: Set up command-line arg for dependency graph
+dependency = True
+
 print(80*"=")
 print("CRN Variable Bound Calculator")
 print(80*"=")
@@ -56,6 +59,29 @@ print(init)
 print(target)
 for r in reaction:
     print(reaction[r])
+
+if dependency:
+    print(80*"-")
+    print("Building the dependency graph")
+    print(80*"-")
+    target_dict = {}
+    target_dict[target[0]] = target
+    depnode = dependency_graph.make_dependency_graph(init, target_dict, reaction)
+    reachable = depnode.enabled
+    print("Reachable?", reachable)
+    print("Dep Graph:")
+    print(depnode)
+    if not reachable:
+        print("TARGET NOT REACHABLE. TERMINATING EARLY.")
+        exit(0)
+    reaction_list = depnode.to_list()
+    k = list(reaction.keys())
+    for r in k:
+        if r not in reaction_list:
+            reaction.pop(r)
+    
+
+exit()
 
 print(80*"-")
 print("Building the yices model")
