@@ -3,7 +3,7 @@ species L init 2
 species RL init 0
 species G init 50
 species GA init 0
-species GBG init 0
+species GBG init 100
 species GD init 0
 target GBG = 50
 reaction R1

@@ -8,8 +8,8 @@ class Reaction:
         self.dep_executions = 0
 
     def __str__(self) -> str:
-        s = ""
-        s = s+("Reaction " + self.name)
+        # s = ""
+        # s = s+("Reaction " + self.name)
         # s = s+("\n")
         # for c in self.consume:
         #     s = s+"CON "+str(c)
@@ -19,7 +19,7 @@ class Reaction:
         #     s = s+("\n")
         # s = s+str(self.const)
         # s = s+("\n")
-        return s
+        return self.name
 
 def parse_model(filename):
     init = dict()
@@ -118,6 +118,8 @@ def parse_model(filename):
     
     return init, target, reaction
 
+import dependency_graph
+
 if __name__ == "__main__":
     print("Testing parser on ypm.crn")
     
@@ -129,9 +131,9 @@ if __name__ == "__main__":
         print(r)
         print(reaction[r])
 
-    from dependency_graph import *
-
     target_dict = {}
     target_dict[target[0]] = target
-    reachable = make_dependency_graph(init, target_dict, reaction)
+    depnode, reachable = dependency_graph.make_dependency_graph(init, target_dict, reaction)
     print("Reachable?", reachable)
+    print("Dep Graph:")
+    print(depnode)
