@@ -20,11 +20,6 @@ class DepNode:
     
     def to_string(self, depth=0):
         spaces = depth*"|"
-        # if depth < 2:
-        #     spaces = depth*" "
-        # else:
-        #     spaces = (depth-1)*" "+"|"
-
         s = ""
 
         if self.reaction == None:
@@ -32,18 +27,21 @@ class DepNode:
         else:
             s = s + spaces + str(self.reaction)
 
-        s = s + " --> { "
+        s = s + " " + str(self.executions) + " times to produce " + str(self.species_desired)
+        s = s + "\n"
 
-        for d in self.dependencies:
-            s = s + str(self.dependencies[d].reaction) + str(self.dependencies[d].species_desired) + " "
+        # s = s + " --> { "
 
-        if len(self.dependencies) == 0:
-            if self.enabled:
-                s = s + "enabled "
-            else:
-                s = s + "NOT ENABLED -- CANNOT PRODUCE " + str(self.species_desired) + " "
+        # for d in self.dependencies:
+        #     s = s + str(self.dependencies[d].reaction) + str(self.dependencies[d].species_desired) + " "
 
-        s = s + "}\n"
+        # if len(self.dependencies) == 0:
+        #     if self.enabled:
+        #         s = s + "enabled "
+        #     else:
+        #         s = s + "NOT ENABLED -- CANNOT PRODUCE " + str(self.species_desired) + " "
+
+        # s = s + "}\n"
         
         for d in self.dependencies:
             s = s + self.dependencies[d].to_string(depth+1)

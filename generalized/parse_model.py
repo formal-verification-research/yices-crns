@@ -121,9 +121,14 @@ def parse_model(filename):
 import dependency_graph
 
 if __name__ == "__main__":
-    print("Testing parser on ypm.crn")
+
+
+    model = "6react.crn"
+
+    print("Testing parser on", model)
     
-    init, target, reaction = parse_model("ypm.crn")
+    # init, target, reaction = parse_model("ypm.crn")
+    init, target, reaction = parse_model(model)
 
     print(init)
     print(target)

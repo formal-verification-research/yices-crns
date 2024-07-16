@@ -1,6 +1,6 @@
-Testing parser on ypm.crn
-{'R': 50, 'L': 2, 'RL': 0, 'G': 50, 'GA': 0, 'GBG': 100, 'GD': 0}
-('GBG', '=', '50')
+Testing parser on 6react.crn
+{'s1': 1, 's2': 50, 's3': 0, 's4': 1, 's5': 50, 's6': 0}
+('s5', '=', '25')
 R1
 R1
 R2
@@ -13,29 +13,19 @@ R5
 R5
 R6
 R6
-R7
-R7
-R8
-R8
- Found dependency R7
+ Found dependency R4
+  Found dependency R5
+   Initially enabled: R5 with 24 executions
+  temp target s4
   Found dependency R6
-   Found dependency R5
-    Found dependency R3
-     Initially enabled: R3 with 50 executions
-    temp target RL
-    Found dependency R8
-     Initially enabled: R8 with 50 executions
-    temp target RL
-    Reachable: R5 False
-   Reachable: R6 False
-  Reachable: R7 False
+   Initially enabled: R6 with 24 executions
+  temp target s4
+  Reachable: R4 False
  Reachable: target False
 Reachable? False
 Dep Graph:
-target --> { R7['GBG', -50] }
-|R7 --> { R6['GD', 50] }
-||R6 --> { R5['GA', 50] }
-|||R5 --> { R3['RL', 50] R8['RL', 50] }
-||||R3 --> { enabled }
-||||R8 --> { enabled }
+target -25 times to produce []
+|R4 25 times to produce ['s5', -25]
+||R5 24 times to produce ['s4', 24]
+||R6 24 times to produce ['s4', 24]
 
