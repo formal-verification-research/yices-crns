@@ -433,3 +433,41 @@ for s in init:
     print("    Lower bound [ %4d, %4d ]" % (lb_loose[s],lb_tight[s]))
     print("    Upper bound [ %4d, %4d ]" % (ub_tight[s],ub_loose[s]))
     # print("    Upper bound [", ub_tight[s], ",", ub_loose[s], "]")
+
+    #TODO: BOUNDS STORED IN REACTION OBJECT
+
+#TODO: TEST ON WORK PC
+def species_gt(s1, s2):
+    s1_loose = ub_loose[s1] - lb_loose[s1]
+    s2_loose = ub_loose[s2] - lb_loose[s2]
+    if s1_loose < s2_loose:
+        return False
+    elif s1_loose > s2_loose:
+        return True
+    s1_tight = ub_tight[s1] - lb_tight[s1]
+    s2_tight = ub_tight[s2] - lb_tight[s2]
+    if s1_tight < s2_tight:
+        return False
+    elif s1_tight > s2_tight:
+        return True
+    return True #TODO: EVENTUALLY MAKE NONDETERMINISTIC
+
+def sort_species(unordered):
+    # First, copy the species into a new array
+    species = []
+    for s in init:
+        species.append(s)
+
+    # simple insertion sort
+    for i in range(1,len(species)):
+        species_in_question = species[i]
+        j = i - 1
+        while j >= 0 and species_gt(species[j], species_in_question):
+            species[j + 1] = species[j]
+            j = j - 1
+        species[j + 1] = species_in_question
+
+    return species
+
+sorted_species = sort_species(init)
+print("Sorted Species:", sorted_species)

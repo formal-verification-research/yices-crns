@@ -20,6 +20,7 @@ class Reaction:
         # s = s+str(self.const)
         # s = s+("\n")
         return self.name
+    
 
 def parse_model(filename):
     init = dict()
