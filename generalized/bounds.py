@@ -199,6 +199,18 @@ status = yices_ctx.check_context()
 
 # start the interesting bmc business
 k = 0
+unreachable_formula = formula
+
+def extend_unreachable_formula_with_n_targets(unreachable_formula, k, n):
+    res = unreachable_formula
+    targets = []
+    for i in range(k, k+n+1):
+        print("Adding trans at " + str(i))
+        res = Terms.yand([res, unroller.at_time(TRANS, i)])
+        print("Adding target at " + str(i))
+        targets.append(unroller.at_time(TARGET, i))
+    res = Terms.yand([res, Terms.yor(targets)])
+    return res
 
 while True:
     print("-- TIME %3d --" % (k))
@@ -214,6 +226,7 @@ while True:
     if status == Status.SAT:
         # remember the whole formula
         formula = Terms.yand([formula, unroller.at_time(TARGET, k)])
+        # no need to update unreachable_formula
         model = Model.from_context(yices_ctx, True)
         model_string = model.to_string(80, k * 4, 0)
         #print(model_string)
@@ -225,6 +238,7 @@ while True:
         yices_ctx.assert_formula(Terms.ynot(assump))
         yices_ctx.assert_formula(unroller.at_time(TRANS, k))
         formula = Terms.yand([formula, unroller.at_time(TRANS, k)])
+        unreachable_formula = Terms.yand([unreachable_formula, unroller.at_time(TRANS, k)])
         k = k + 1
 
 print()
@@ -277,6 +291,12 @@ lb_loose = dict()
 
 print(30*".")
 
+# clear yices context
+yices_ctx.reset_context()
+n = 2
+# assert extended unreachable formula
+yices_ctx.assert_formula(extend_unreachable_formula_with_n_targets(unreachable_formula, k, n))
+
 # step 1: loosest upper bounds
 for s in init:
     yices_ctx.push()
@@ -285,16 +305,19 @@ for s in init:
     max_bound = 2**BITS - 1
     while True:
         yices_ctx.push()
-        yices_ctx.assert_formula(timed_looseub_state(k, bound, state_vars[s]))
-        status = yices_ctx.check_context_with_assumptions(None, [assump])
+        yices_ctx.assert_formula(timed_looseub_state(k+n, bound, state_vars[s]))
+        #status = yices_ctx.check_context_with_assumptions(None, [assump])
+        status = yices_ctx.check_context()
         if status == Status.SAT:
-            if bound == max_bound:
+            if bound >= max_bound:
                 ub_loose[s] = bound
                 break
             min_bound = bound
-            bound = bound + int((max_bound-bound) / 2)
+            bound = bound + math.ceil((max_bound-bound) / 2)
+            print("FOUND SAT " + str(bound))
         elif status == Status.UNSAT:
-            if bound == max_bound:
+            print("FOUND UNSAT")
+            if bound >= max_bound:
                 ub_loose[s] = bound - 1
                 break
             else:
@@ -322,19 +345,20 @@ for s in init:
     min_bound = 0
     while True:
         yices_ctx.push()
-        yices_ctx.assert_formula(timed_tightub_state(k, bound, state_vars[s]))
-        status = yices_ctx.check_context_with_assumptions(None, [assump])
+        yices_ctx.assert_formula(timed_tightub_state(k+n, bound, state_vars[s]))
+        #status = yices_ctx.check_context_with_assumptions(None, [assump])
+        status = yices_ctx.check_context()
         if status == Status.SAT:
-            if bound == min_bound:
+            if bound <= min_bound:
                 ub_tight[s] = bound
                 break
             max_bound = bound
             if bound == 1:
                 bound = 0
             else:
-                bound = bound - int((bound-min_bound) / 2)
+                bound = bound - math.floor((bound-min_bound) / 2)
         elif status == Status.UNSAT:
-            if bound == min_bound:
+            if bound <= min_bound:
                 ub_tight[s] = bound + 1
                 break
             else:
@@ -362,8 +386,9 @@ for s in init:
     min_bound = 0
     while True:
         yices_ctx.push()
-        yices_ctx.assert_formula(timed_looselb_state(k, bound, state_vars[s]))
-        status = yices_ctx.check_context_with_assumptions(None, [assump])
+        yices_ctx.assert_formula(timed_looselb_state(k+n, bound, state_vars[s]))
+        #status = yices_ctx.check_context_with_assumptions(None, [assump])
+        status = yices_ctx.check_context()
         if status == Status.SAT:
             if bound == min_bound:
                 lb_loose[s] = bound
@@ -397,8 +422,9 @@ for s in init:
     max_bound = 2**BITS - 1
     while True:
         yices_ctx.push()
-        yices_ctx.assert_formula(timed_tightlb_state(k, bound, state_vars[s]))
-        status = yices_ctx.check_context_with_assumptions(None, [assump])
+        yices_ctx.assert_formula(timed_tightlb_state(k+n, bound, state_vars[s]))
+        #status = yices_ctx.check_context_with_assumptions(None, [assump])
+        status = yices_ctx.check_context()
         if status == Status.SAT:
             if bound == max_bound:
                 lb_tight[s] = bound
@@ -425,7 +451,7 @@ for s in init:
 
 print()
 print(80*"-")
-print("Final Bounds for Trace Length", k)
+print("Final Bounds for Trace Length", k+n)
 print(80*"-")
 
 for s in init:
