@@ -24,10 +24,11 @@ class DepNode:
 
         if self.reaction == None:
             s = s + spaces + "target"
+            s = s + " " + str(self.executions) + " times"
         else:
             s = s + spaces + str(self.reaction)
+            s = s + " " + str(self.executions) + " times to produce " + str(self.species_desired)
 
-        s = s + " " + str(self.executions) + " times to produce " + str(self.species_desired)
         s = s + "\n"
 
         # s = s + " --> { "

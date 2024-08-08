@@ -455,7 +455,7 @@ def species_gt(s1, s2):
 def sort_species(unordered):
     # First, copy the species into a new array
     species = []
-    for s in init:
+    for s in unordered:
         species.append(s)
 
     # simple insertion sort
